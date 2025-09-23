@@ -1,0 +1,408 @@
+import { v4 as uuidv4 } from 'uuid';
+import type {
+  Student,
+  Job,
+  Stock,
+  StockTransaction,
+  StockPortfolio,
+  SavingsAccount,
+  Achievement,
+  StudentAchievement,
+  Transaction,
+  MarketNews,
+  StockPriceHistory
+} from '../schemas';
+
+// 학생 이름 목록
+const studentNames = [
+  '김민준', '이서연', '박지훈', '정수빈', '최예진',
+  '강민서', '조유진', '윤서준', '임하은', '한지우',
+  '오승민', '서은지', '신동현', '황소연', '안재현'
+];
+
+// 직업 목록
+const jobTitles = [
+  { title: '반장', salary: 15000, positions: 1 },
+  { title: '부반장', salary: 12000, positions: 1 },
+  { title: '환경부장', salary: 10000, positions: 2 },
+  { title: '도서부원', salary: 8000, positions: 3 },
+  { title: '급식도우미', salary: 8000, positions: 2 },
+  { title: '칠판지우개', salary: 6000, positions: 3 },
+  { title: '청소도우미', salary: 7000, positions: 3 }
+];
+
+// 주식 목록
+const stockData = [
+  { name: '그린에너지', symbol: 'GE001', sector: '환경', price: 5000 },
+  { name: '에코텍', symbol: 'ECO01', sector: '환경', price: 3500 },
+  { name: '스마트북스', symbol: 'SB001', sector: '교육', price: 4000 },
+  { name: '에듀테크', symbol: 'EDU01', sector: '교육', price: 6000 },
+  { name: '테크놀로지', symbol: 'TEC01', sector: '기술', price: 8000 },
+  { name: '디지털월드', symbol: 'DW001', sector: '기술', price: 7500 },
+  { name: '맛있는급식', symbol: 'YUM01', sector: '식품', price: 3000 },
+  { name: '건강푸드', symbol: 'HF001', sector: '식품', price: 4500 }
+];
+
+// 업적 목록
+const achievementData: Omit<Achievement, 'id' | 'createdAt'>[] = [
+  {
+    name: '첫 거래',
+    description: '처음으로 거래를 완료했어요!',
+    icon: '🎯',
+    category: 'milestone',
+    condition: { type: 'transaction_count', target: 1 },
+    points: 10,
+    isActive: true
+  },
+  {
+    name: '거래왕',
+    description: '10번 이상 거래했어요!',
+    icon: '👑',
+    category: 'trading',
+    condition: { type: 'transaction_count', target: 10 },
+    points: 50,
+    isActive: true
+  },
+  {
+    name: '저축 시작',
+    description: '첫 저축을 시작했어요!',
+    icon: '🏦',
+    category: 'savings',
+    condition: { type: 'amount_saved', target: 1000 },
+    points: 20,
+    isActive: true
+  },
+  {
+    name: '투자의 시작',
+    description: '첫 주식을 구매했어요!',
+    icon: '📈',
+    category: 'trading',
+    condition: { type: 'transaction_count', target: 1 },
+    points: 30,
+    isActive: true
+  },
+  {
+    name: '부자',
+    description: '총 자산이 100,000원을 넘었어요!',
+    icon: '💰',
+    category: 'milestone',
+    condition: { type: 'portfolio_value', target: 100000 },
+    points: 100,
+    isActive: true
+  },
+  {
+    name: '일벌레',
+    description: '직업을 가지고 열심히 일했어요!',
+    icon: '💼',
+    category: 'milestone',
+    condition: { type: 'jobs_completed', target: 1, timeframe: 'monthly' },
+    points: 25,
+    isActive: true
+  },
+  {
+    name: '나눔의 미덕',
+    description: '기부를 5번 이상 했어요!',
+    icon: '🤝',
+    category: 'social',
+    condition: { type: 'donations_made', target: 5 },
+    points: 40,
+    isActive: true
+  }
+];
+
+export function generateDemoData(classroomId: string) {
+  const now = new Date();
+  const data: any = {
+    students: [],
+    jobs: [],
+    stocks: [],
+    stockTransactions: [],
+    stockPortfolios: [],
+    savingsAccounts: [],
+    achievements: [],
+    studentAchievements: [],
+    transactions: [],
+    marketNews: [],
+    stockPriceHistory: []
+  };
+
+  // 1. 직업 생성
+  jobTitles.forEach(job => {
+    data.jobs.push({
+      id: uuidv4(),
+      classroomId,
+      title: job.title,
+      salary: job.salary,
+      maxPositions: job.positions,
+      currentPositions: 0,
+      description: `${job.title} 직업입니다.`
+    });
+  });
+
+  // 2. 학생 생성 및 직업 배정
+  let jobIndex = 0;
+  studentNames.forEach((name, index) => {
+    const studentId = uuidv4();
+    const hasJob = Math.random() > 0.3; // 70% 확률로 직업 보유
+    let assignedJob = null;
+
+    if (hasJob && jobIndex < data.jobs.length) {
+      const job = data.jobs[jobIndex % data.jobs.length];
+      if (job.currentPositions < job.maxPositions) {
+        assignedJob = job.id;
+        job.currentPositions++;
+        jobIndex++;
+      }
+    }
+
+    const balance = Math.floor(Math.random() * 50000) + 10000;
+    const creditScore = Math.floor(Math.random() * 300) + 550;
+
+    data.students.push({
+      id: studentId,
+      classroomId,
+      name,
+      pin4: String(1000 + index).padStart(4, '0'),
+      jobId: assignedJob || undefined,
+      balance,
+      active: true,
+      createdAt: new Date(now.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+      creditScore,
+      creditGrade: creditScore > 750 ? 'A+' : creditScore > 700 ? 'A' : creditScore > 650 ? 'B+' : creditScore > 600 ? 'B' : 'C',
+      totalEarnings: assignedJob ? Math.floor(Math.random() * 100000) + 50000 : Math.floor(Math.random() * 30000),
+      totalTransactions: Math.floor(Math.random() * 50) + 10,
+      achievements: [],
+      lateCount: Math.floor(Math.random() * 5),
+      homeworkMissed: Math.floor(Math.random() * 3),
+      bookOverdue: Math.floor(Math.random() * 2)
+    });
+  });
+
+  // 3. 주식 생성
+  stockData.forEach(stock => {
+    const stockId = uuidv4();
+    const basePrice = stock.price;
+
+    data.stocks.push({
+      id: stockId,
+      classroomId,
+      symbol: stock.symbol,
+      name: stock.name,
+      currentPrice: basePrice + Math.floor(Math.random() * 1000 - 500),
+      previousPrice: basePrice,
+      sector: stock.sector,
+      description: `${stock.name} 주식입니다.`,
+      isActive: true,
+      createdAt: new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: now.toISOString()
+    });
+
+    // 주가 히스토리 생성 (30일)
+    for (let i = 30; i >= 0; i--) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+      const dayPrice = basePrice + Math.floor((Math.random() - 0.5) * 2000);
+
+      data.stockPriceHistory.push({
+        id: uuidv4(),
+        stockId,
+        date: date.toISOString().split('T')[0],
+        openPrice: dayPrice - Math.floor(Math.random() * 200),
+        closePrice: dayPrice,
+        highPrice: dayPrice + Math.floor(Math.random() * 300),
+        lowPrice: dayPrice - Math.floor(Math.random() * 300),
+        volume: Math.floor(Math.random() * 10000) + 1000,
+        createdAt: date.toISOString()
+      });
+    }
+  });
+
+  // 4. 학생별 주식 거래 및 포트폴리오 생성
+  data.students.forEach((student: Student) => {
+    const hasStocks = Math.random() > 0.4; // 60% 확률로 주식 보유
+
+    if (hasStocks) {
+      // 2-4개 종목 랜덤 선택
+      const numStocks = Math.floor(Math.random() * 3) + 2;
+      const selectedStocks = [...data.stocks].sort(() => Math.random() - 0.5).slice(0, numStocks);
+
+      selectedStocks.forEach((stock: Stock) => {
+        const quantity = Math.floor(Math.random() * 10) + 1;
+        const avgPrice = stock.currentPrice + Math.floor(Math.random() * 1000 - 500);
+
+        // 포트폴리오 추가
+        data.stockPortfolios.push({
+          id: uuidv4(),
+          classroomId,
+          studentId: student.id,
+          stockId: stock.id,
+          quantity,
+          averagePrice: avgPrice,
+          totalCost: avgPrice * quantity,
+          createdAt: new Date(now.getTime() - Math.random() * 20 * 24 * 60 * 60 * 1000).toISOString(),
+          updatedAt: now.toISOString()
+        });
+
+        // 거래 내역 생성 (매수)
+        for (let i = 0; i < Math.floor(Math.random() * 3) + 1; i++) {
+          const tradeDate = new Date(now.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000);
+          const tradeQuantity = Math.floor(Math.random() * 3) + 1;
+          const tradePrice = avgPrice + Math.floor(Math.random() * 500 - 250);
+
+          data.stockTransactions.push({
+            id: uuidv4(),
+            classroomId,
+            studentId: student.id,
+            stockId: stock.id,
+            type: 'buy',
+            quantity: tradeQuantity,
+            price: tradePrice,
+            totalAmount: tradePrice * tradeQuantity,
+            fee: Math.floor(tradePrice * tradeQuantity * 0.01),
+            createdAt: tradeDate.toISOString()
+          });
+        }
+
+        // 일부 매도 거래도 생성
+        if (Math.random() > 0.6) {
+          const sellDate = new Date(now.getTime() - Math.random() * 10 * 24 * 60 * 60 * 1000);
+          const sellQuantity = Math.floor(Math.random() * 2) + 1;
+          const sellPrice = stock.currentPrice + Math.floor(Math.random() * 500);
+
+          data.stockTransactions.push({
+            id: uuidv4(),
+            classroomId,
+            studentId: student.id,
+            stockId: stock.id,
+            type: 'sell',
+            quantity: sellQuantity,
+            price: sellPrice,
+            totalAmount: sellPrice * sellQuantity,
+            fee: Math.floor(sellPrice * sellQuantity * 0.01),
+            createdAt: sellDate.toISOString()
+          });
+        }
+      });
+    }
+
+    // 5. 저축 계좌 생성
+    const hasSavings = Math.random() > 0.5; // 50% 확률로 저축 보유
+
+    if (hasSavings) {
+      const accountType = Math.random() > 0.5 ? 'savings' : 'deposit';
+      const principal = Math.floor(Math.random() * 30000) + 10000;
+      const termMonths = Math.random() > 0.5 ? 6 : 12;
+
+      data.savingsAccounts.push({
+        id: uuidv4(),
+        classroomId,
+        studentId: student.id,
+        type: accountType,
+        name: accountType === 'savings' ? '우리반 적금' : '우리반 예금',
+        principal,
+        interestRate: accountType === 'savings' ? 5 : 3,
+        termMonths,
+        monthlyDeposit: accountType === 'savings' ? Math.floor(principal / termMonths) : 0,
+        totalBalance: principal + Math.floor(Math.random() * 5000),
+        createdAt: new Date(now.getTime() - Math.random() * 60 * 24 * 60 * 60 * 1000).toISOString(),
+        maturityDate: new Date(now.getTime() + termMonths * 30 * 24 * 60 * 60 * 1000).toISOString(),
+        isMatured: false,
+        autoRenewal: Math.random() > 0.5
+      });
+    }
+
+    // 6. 일반 거래 내역 생성
+    for (let i = 0; i < Math.floor(Math.random() * 10) + 5; i++) {
+      const transactionDate = new Date(now.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000);
+      const types = ['payroll', 'purchase', 'transfer', 'bonus'] as const;
+      const type = types[Math.floor(Math.random() * types.length)];
+
+      data.transactions.push({
+        id: uuidv4(),
+        classroomId,
+        studentId: student.id,
+        type,
+        amount: type === 'payroll' || type === 'bonus'
+          ? Math.floor(Math.random() * 10000) + 5000
+          : -Math.floor(Math.random() * 5000) - 1000,
+        memo: type === 'payroll' ? '월급' :
+               type === 'bonus' ? '보너스' :
+               type === 'purchase' ? '구매' : '이체',
+        createdAt: transactionDate.toISOString(),
+        approved: true,
+        requestedBy: 'teacher'
+      });
+    }
+  });
+
+  // 7. 업적 생성
+  achievementData.forEach(achievement => {
+    const achievementId = uuidv4();
+
+    data.achievements.push({
+      ...achievement,
+      id: achievementId,
+      createdAt: now.toISOString()
+    });
+
+    // 학생별 업적 진행도 생성
+    data.students.forEach((student: Student) => {
+      const hasProgress = Math.random() > 0.3; // 70% 확률로 진행도 있음
+
+      if (hasProgress) {
+        const progress = Math.floor(Math.random() * 100);
+        const isCompleted = progress >= 100 || Math.random() > 0.7;
+
+        data.studentAchievements.push({
+          id: uuidv4(),
+          classroomId,
+          studentId: student.id,
+          achievementId,
+          progress: isCompleted ? 100 : progress,
+          isCompleted,
+          completedAt: isCompleted ? new Date(now.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString() : undefined,
+          createdAt: new Date(now.getTime() - Math.random() * 60 * 24 * 60 * 60 * 1000).toISOString(),
+          updatedAt: now.toISOString()
+        });
+      }
+    });
+  });
+
+  // 8. 시장 뉴스 생성
+  const newsTypes = ['환경', '교육', '기술', '식품'] as const;
+  const newsImpacts = ['positive', 'negative', 'neutral'] as const;
+
+  for (let i = 0; i < 5; i++) {
+    const newsDate = new Date(now.getTime() - Math.random() * 7 * 24 * 60 * 60 * 1000);
+    const type = newsTypes[Math.floor(Math.random() * newsTypes.length)];
+    const impact = newsImpacts[Math.floor(Math.random() * newsImpacts.length)];
+
+    const newsTemplates = {
+      환경: ['미세먼지 농도 개선!', '교실 환경 개선 프로젝트 시작'],
+      교육: ['새로운 학습 프로그램 도입', '시험 기간 임박'],
+      기술: ['디지털 기기 보급 확대', '온라인 학습 플랫폼 개선'],
+      식품: ['급식 메뉴 개선', '건강한 간식 도입']
+    };
+
+    const title = newsTemplates[type][Math.floor(Math.random() * newsTemplates[type].length)];
+
+    data.marketNews.push({
+      id: uuidv4(),
+      classroomId,
+      title,
+      content: `${title}과 관련된 뉴스입니다. ${type} 관련 주식에 영향을 줄 것으로 예상됩니다.`,
+      type,
+      impact,
+      severity: Math.floor(Math.random() * 5) + 1,
+      affectedStocks: data.stocks
+        .filter((s: Stock) => s.sector === type)
+        .map((s: Stock) => s.id)
+        .slice(0, 2),
+      isActive: i < 3, // 최근 3개만 활성화
+      expiresAt: new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(),
+      createdAt: newsDate.toISOString()
+    });
+  }
+
+  return data;
+}
