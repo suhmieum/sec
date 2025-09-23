@@ -23,7 +23,9 @@
       "Bash(git branch:*)",
       "Bash(git push:*)",
       "Read(//c/Users/mieum/Downloads/**)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(dir dist)",
+      "Bash(copy:*)"
     ],
     "deny": [],
     "ask": []
