@@ -1,10 +1,12 @@
-# 비바타운 (VivaaTown) - SEC 기반 학급 경제 플랫폼
+# 비바타운 (VivaTown) - SEC 기반 학급 경제 플랫폼
 
 SEC(Small Economy in the Classroom) 프로그램 기반 초등 학급 경제 운영 웹 플랫폼입니다.
+목업용으로 간단히 만들어서 실제 제대로 작동하지는 않습니다.
 
 ## 🎯 프로젝트 개요
 
-비바타운은 교실에서 작은 경제 시스템을 운영할 수 있는 교육용 플랫폼입니다. 학생들이 가상의 경제 활동을 통해 경제 개념을 자연스럽게 학습할 수 있도록 도와줍니다.
+비바타운은 교실에서 작은 경제 시스템을 운영할 수 있는 교육용 플랫폼입니다. 
+학생들이 가상의 경제 활동을 통해 경제 개념을 자연스럽게 학습할 수 있도록 도와줍니다.
 
 ## ✨ 주요 기능
 
@@ -143,23 +145,3 @@ vivaa-town/
 - **주식**: 8종목 (4개 섹터: 환경/교육/기술/식품)
 - **거래**: 30일간의 실제적인 매수/매도 패턴
 - **업적**: 모든 카테고리별 달성 현황
-
-## 📝 라이선스
-
-이 프로젝트는 교육 목적으로 개발되었습니다.
-
-## 🤝 기여하기
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📞 연락처
-
-프로젝트 관련 문의사항이 있으시면 이슈를 생성해 주세요.
-
----
-
-**비바타운과 함께 교실에서 경제를 배워보세요! 🏫💰**
