@@ -8,7 +8,7 @@ export default defineConfig({
     port: 6100,
     strictPort: true,
   },
-  base: process.env.NODE_ENV === 'production' ? '/vivaa-town/' : '/',
+  base: '/sec/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
