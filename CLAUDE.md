@@ -73,6 +73,23 @@ npm run start  # 프로덕션 실행
 - JWT 인증 시스템
 - 실제 API 구현 (CRUD)
 
+## 🌐 웹 배포 정보
+
+### GitHub Pages 배포
+- **저장소**: https://github.com/suhmieum/sec
+- **웹사이트**: https://suhmieum.github.io/sec/
+- **배포 방식**: main 브랜치 루트 디렉토리에서 자동 배포
+- **빌드 설정**: Vite 빌드 결과물을 프로젝트 루트로 복사
+
+### 배포 명령어
+```bash
+# GitHub에 변경사항 업데이트 후 자동 배포
+cd sec-project
+git add .
+git commit -m "Update website"
+git push origin main
+```
+
 ## 데이터 모델 (Zustand Stores)
 
 ### Classroom Store
@@ -195,6 +212,7 @@ src/
 - 🏠 **홈 화면 분석 대시보드 통합** (전체 개요, 활동 히트맵, 거래 패턴)
 - 🎮 **시연용 종합 데이터 생성** (15명 학생, 8개 주식, 30일 거래 데이터)
 - 🐛 **JSX 문법 오류 및 TailwindCSS 설정 문제 해결**
+- 🌐 **GitHub Pages 웹 배포 완료** (https://suhmieum.github.io/sec/)
 
 ### 🏛️ 새로 구현된 금융 시스템
 - **예금/적금**: 정기예금 3/6/12개월, 자유적금, 실시간 이자 계산
