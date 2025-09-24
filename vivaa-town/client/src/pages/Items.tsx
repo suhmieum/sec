@@ -19,62 +19,62 @@ function Items() {
   const currentClass = useCurrentClassroom();
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ItemFormData>();
 
-  // Mock 아이템 데이터 (시연용)
+  // Mock 아이템 데이터 (교실 권리형 상품)
   const mockItems = [
     {
       id: '1',
-      name: '연필',
-      description: '2B 연필, 학습용',
-      price: 500,
-      stock: 50,
+      name: '숙제 면제권',
+      description: '하루 동안 숙제를 하지 않아도 되는 특별 권리',
+      price: 2000,
+      stock: 10,
       forSale: true,
-      studentTradable: true,
-      category: '학용품',
-      icon: '✏️'
+      studentTradable: false,
+      category: '학습 권리',
+      icon: '📝'
     },
     {
       id: '2',
-      name: '지우개',
-      description: '깨끗하게 지워지는 지우개',
-      price: 300,
-      stock: 30,
+      name: '발표 순서 변경권',
+      description: '발표 순서를 원하는 순서로 바꿀 수 있는 권리',
+      price: 1500,
+      stock: 15,
       forSale: true,
       studentTradable: true,
-      category: '학용품',
-      icon: '🗀'
+      category: '수업 권리',
+      icon: '🎤'
     },
     {
       id: '3',
-      name: '노트',
-      description: 'A4 사이즈 노트',
-      price: 1000,
-      stock: 25,
+      name: '수업 시간 과제 연장권',
+      description: '수업 중 과제 시간을 10분 더 연장할 수 있는 권리',
+      price: 1800,
+      stock: 8,
       forSale: true,
       studentTradable: false,
-      category: '학용품',
-      icon: '📓'
+      category: '학습 권리',
+      icon: '⏰'
     },
     {
       id: '4',
-      name: '스티커',
-      description: '귀여운 동물 스티커',
-      price: 800,
-      stock: 40,
+      name: '자리 바꾸기권',
+      description: '원하는 친구와 자리를 바꿀 수 있는 권리 (하루)',
+      price: 1200,
+      stock: 20,
       forSale: true,
       studentTradable: true,
-      category: '장난감',
-      icon: '🌟'
+      category: '교실 권리',
+      icon: '🪑'
     },
     {
       id: '5',
-      name: '간식 쿠폰',
-      description: '매점에서 사용 가능한 간식 쿠폰',
-      price: 1500,
-      stock: 20,
+      name: '쉬는 시간 칠판 낙서권',
+      description: '쉬는 시간에 칠판에 그림이나 글을 쓸 수 있는 권리',
+      price: 800,
+      stock: 25,
       forSale: true,
-      studentTradable: false,
-      category: '쿠폰',
-      icon: '🍪'
+      studentTradable: true,
+      category: '재미 권리',
+      icon: '🎨'
     },
   ];
 
@@ -351,7 +351,6 @@ function Items() {
                   <span className="text-2xl mr-3">{item.icon}</span>
                   <div>
                     <h3 className="text-lg font-medium text-gray-900">{item.name}</h3>
-                    <p className="text-sm text-gray-500">{item.category}</p>
                   </div>
                 </div>
                 <div className="flex space-x-1">

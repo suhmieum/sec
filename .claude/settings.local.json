@@ -25,7 +25,9 @@
       "Read(//c/Users/mieum/Downloads/**)",
       "Bash(git commit:*)",
       "Bash(dir dist)",
-      "Bash(copy:*)"
+      "Bash(copy:*)",
+      "Bash(git pull:*)",
+      "Bash(xcopy:*)"
     ],
     "deny": [],
     "ask": []

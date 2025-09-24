@@ -203,6 +203,44 @@ export const StockPriceHistorySchema = z.object({
   createdAt: z.string().datetime(),
 });
 
+// 시장 참여율 스키마
+export const MarketParticipationSchema = z.object({
+  id: IdSchema,
+  classroomId: IdSchema,
+  date: z.string(), // YYYY-MM-DD
+  participationRate: z.number().min(0).max(1),
+  activeStudents: z.number(),
+  totalTransactions: z.number(),
+  tradingVolume: z.number(),
+  createdAt: z.string().datetime(),
+});
+
+// 저축률 스키마
+export const SavingsRateSchema = z.object({
+  id: IdSchema,
+  classroomId: IdSchema,
+  month: z.string(), // YYYY-MM
+  savingsRate: z.number().min(0).max(1),
+  totalSavings: z.number(),
+  totalAssets: z.number(),
+  newSavingsAccounts: z.number(),
+  averageSavingsAmount: z.number(),
+  createdAt: z.string().datetime(),
+});
+
+// 활동 히트맵 스키마
+export const ActivityHeatmapSchema = z.object({
+  id: IdSchema,
+  classroomId: IdSchema,
+  studentId: IdSchema,
+  dayOfWeek: z.number().min(0).max(6), // 0=일요일
+  hour: z.number().min(0).max(23),
+  activityLevel: z.number().min(0).max(1),
+  transactionCount: z.number(),
+  totalAmount: z.number(),
+  createdAt: z.string().datetime(),
+});
+
 // Item schema
 export const ItemSchema = z.object({
   id: IdSchema,
@@ -269,6 +307,9 @@ export const SnapshotDataSchema = z.object({
   marketNews: z.array(MarketNewsSchema).optional(),
   marketIndicators: z.array(MarketIndicatorsSchema).optional(),
   stockPriceHistory: z.array(StockPriceHistorySchema).optional(),
+  marketParticipation: z.array(MarketParticipationSchema).optional(),
+  savingsRates: z.array(SavingsRateSchema).optional(),
+  activityHeatmap: z.array(ActivityHeatmapSchema).optional(),
 });
 
 export const SnapshotSchema = z.object({
@@ -291,6 +332,9 @@ export type StudentAchievement = z.infer<typeof StudentAchievementSchema>;
 export type MarketNews = z.infer<typeof MarketNewsSchema>;
 export type MarketIndicators = z.infer<typeof MarketIndicatorsSchema>;
 export type StockPriceHistory = z.infer<typeof StockPriceHistorySchema>;
+export type MarketParticipation = z.infer<typeof MarketParticipationSchema>;
+export type SavingsRate = z.infer<typeof SavingsRateSchema>;
+export type ActivityHeatmap = z.infer<typeof ActivityHeatmapSchema>;
 export type Item = z.infer<typeof ItemSchema>;
 export type Transaction = z.infer<typeof TransactionSchema>;
 export type TransactionType = z.infer<typeof TransactionTypeSchema>;
