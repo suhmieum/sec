@@ -1,9 +1,10 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { useStudentStore } from './studentStore';
 import { useJobStore } from './jobStore';
 import { useStockStore } from './stockStore';
 import { useSavingsStore } from './savingsStore';
-import type { Transaction } from '../schemas';
+import type { Transaction, MarketParticipation, SavingsRate, ActivityHeatmap } from '../schemas';
 
 interface EconomicMetrics {
   giniCoefficient: number; // 지니계수 (빈부격차)
@@ -27,6 +28,19 @@ interface StudentActivity {
 }
 
 interface AnalyticsState {
+  // Data Storage
+  marketParticipation: MarketParticipation[];
+  savingsRates: SavingsRate[];
+  activityHeatmap: ActivityHeatmap[];
+
+  // Data Management
+  addMarketParticipation: (data: MarketParticipation) => void;
+  addSavingsRate: (data: SavingsRate) => void;
+  addActivityHeatmap: (data: ActivityHeatmap) => void;
+  getMarketParticipationByClassroom: (classroomId: string) => MarketParticipation[];
+  getSavingsRatesByClassroom: (classroomId: string) => SavingsRate[];
+  getActivityHeatmapByClassroom: (classroomId: string) => ActivityHeatmap[];
+
   // Economic Metrics
   calculateEconomicMetrics: (classroomId: string) => EconomicMetrics;
   calculateGiniCoefficient: (balances: number[]) => number;
@@ -46,7 +60,39 @@ interface AnalyticsState {
   generateStudentReport: (studentId: string) => any;
 }
 
-export const useAnalyticsStore = create<AnalyticsState>((set, get) => ({
+export const useAnalyticsStore = create<AnalyticsState>()(
+  persist(
+    (set, get) => ({
+  // Data Storage
+  marketParticipation: [],
+  savingsRates: [],
+  activityHeatmap: [],
+
+  // Data Management Functions
+  addMarketParticipation: (data) => set(state => ({
+    marketParticipation: [...state.marketParticipation, data]
+  })),
+
+  addSavingsRate: (data) => set(state => ({
+    savingsRates: [...state.savingsRates, data]
+  })),
+
+  addActivityHeatmap: (data) => set(state => ({
+    activityHeatmap: [...state.activityHeatmap, data]
+  })),
+
+  getMarketParticipationByClassroom: (classroomId) => {
+    return get().marketParticipation.filter(mp => mp.classroomId === classroomId);
+  },
+
+  getSavingsRatesByClassroom: (classroomId) => {
+    return get().savingsRates.filter(sr => sr.classroomId === classroomId);
+  },
+
+  getActivityHeatmapByClassroom: (classroomId) => {
+    return get().activityHeatmap.filter(ah => ah.classroomId === classroomId);
+  },
+
   calculateEconomicMetrics: (classroomId) => {
     const students = useStudentStore.getState().getStudentsByClassroom(classroomId);
     const jobs = useJobStore.getState().getJobsByClassroom(classroomId);
@@ -65,20 +111,21 @@ export const useAnalyticsStore = create<AnalyticsState>((set, get) => ({
     // 총 통화량
     const totalCirculation = balances.reduce((a, b) => a + b, 0);
 
-    // 시장 참여율 (주식 또는 예금 보유 학생 비율)
-    const participatingStudents = students.filter(s => {
-      const hasStocks = stockStore.getPortfolioByStudent(s.id).length > 0;
-      const hasSavings = savingsStore.getSavingsAccountsByStudent(s.id).length > 0;
-      return hasStocks || hasSavings;
-    });
-    const marketParticipation = (participatingStudents.length / students.length) * 100 || 0;
+    // 시장 참여율 - 저장된 데이터에서 최신값 가져오기
+    const marketParticipationData = get().getMarketParticipationByClassroom(classroomId);
+    const latestMarketParticipation = marketParticipationData
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+    const marketParticipation = latestMarketParticipation
+      ? latestMarketParticipation.participationRate * 100
+      : 0;
 
-    // 저축률 (예금/적금 총액 / 전체 통화량)
-    const totalSavings = students.reduce((sum, student) => {
-      const accounts = savingsStore.getSavingsAccountsByStudent(student.id);
-      return sum + accounts.reduce((acc, account) => acc + account.totalBalance, 0);
-    }, 0);
-    const savingsRate = (totalSavings / totalCirculation) * 100 || 0;
+    // 저축률 - 저장된 데이터에서 최신값 가져오기
+    const savingsRateData = get().getSavingsRatesByClassroom(classroomId);
+    const latestSavingsRate = savingsRateData
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+    const savingsRate = latestSavingsRate
+      ? latestSavingsRate.savingsRate * 100
+      : 0;
 
     // 고용률
     const employedStudents = students.filter(s => s.jobId).length;
@@ -167,41 +214,37 @@ export const useAnalyticsStore = create<AnalyticsState>((set, get) => ({
 
   getStudentActivityHeatmap: (classroomId) => {
     const students = useStudentStore.getState().getStudentsByClassroom(classroomId);
-    const stockStore = useStockStore.getState();
+    const activityData = get().getActivityHeatmapByClassroom(classroomId);
 
     return students.map(student => {
-      const transactions = stockStore.getTransactionsByStudent(student.id);
+      const studentActivity = activityData.filter(ah => ah.studentId === student.id);
 
-      // 요일별 활동 집계
+      // 요일별 활동 집계 (0-6: 일-토)
       const weeklyActivity = new Array(7).fill(0);
       const hourlyActivity = new Array(24).fill(0);
 
-      transactions.forEach(t => {
-        const date = new Date(t.createdAt);
-        weeklyActivity[date.getDay()]++;
-        hourlyActivity[date.getHours()]++;
+      studentActivity.forEach(activity => {
+        weeklyActivity[activity.dayOfWeek] += activity.transactionCount;
+        hourlyActivity[activity.hour] += activity.transactionCount;
       });
 
-      // 최근 활동 날짜
-      const lastTransaction = transactions.sort((a, b) =>
+      // 최근 활동 날짜와 총 거래 수
+      const totalTransactions = studentActivity.reduce((sum, a) => sum + a.transactionCount, 0);
+      const lastActivity = studentActivity.sort((a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       )[0];
 
-      // 활동 점수 계산 (0-100)
-      const recentActivity = transactions.filter(t => {
-        const date = new Date(t.createdAt);
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        return date >= weekAgo;
-      }).length;
-
-      const activityScore = Math.min(100, recentActivity * 10);
+      // 활동 점수 계산 (0-100) - 활동도 기반
+      const avgActivityLevel = studentActivity.length > 0
+        ? studentActivity.reduce((sum, a) => sum + a.activityLevel, 0) / studentActivity.length
+        : 0;
+      const activityScore = Math.round(avgActivityLevel * 100);
 
       return {
         studentId: student.id,
         studentName: student.name,
-        lastActivityDate: lastTransaction?.createdAt || '',
-        totalTransactions: transactions.length,
+        lastActivityDate: lastActivity?.createdAt || '',
+        totalTransactions,
         weeklyActivity,
         hourlyActivity,
         activityScore
@@ -325,4 +368,14 @@ export const useAnalyticsStore = create<AnalyticsState>((set, get) => ({
       achievements: student.achievements
     };
   }
-}));
+}),
+{
+  name: 'analytics-storage',
+  partialize: (state) => ({
+    marketParticipation: state.marketParticipation,
+    savingsRates: state.savingsRates,
+    activityHeatmap: state.activityHeatmap,
+  }),
+}
+)
+);

@@ -86,7 +86,7 @@ function Layout({ children }: LayoutProps) {
                     </svg>
                   </div>
                   <h1 className="text-xl font-semibold text-gray-900">
-                    비바타운
+                    비바빌리지
                   </h1>
                 </Link>
               </div>

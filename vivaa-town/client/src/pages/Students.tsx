@@ -357,7 +357,7 @@ function Students() {
         </div>
 
         {/* 보기 모드 토글 */}
-        <div className="flex justify-between items-center">
+        <div className="flex justify-end items-center">
           <div className="flex items-center space-x-4">
             <span className="text-sm font-medium text-gray-700">보기 모드:</span>
             <div className="flex rounded-lg border border-gray-300 overflow-hidden">

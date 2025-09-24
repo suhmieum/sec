@@ -291,7 +291,7 @@ function Dashboard() {
           </div>
 
           <div>
-            <div className="text-2xl font-mono font-semibold text-gray-900">
+            <div className="text-2xl font-semibold text-gray-900">
               {currentTime.toLocaleTimeString('ko-KR')}
             </div>
             <div className="text-sm text-gray-500">

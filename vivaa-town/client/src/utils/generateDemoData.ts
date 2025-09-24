@@ -123,7 +123,10 @@ export function generateDemoData(classroomId: string) {
     studentAchievements: [],
     transactions: [],
     marketNews: [],
-    stockPriceHistory: []
+    stockPriceHistory: [],
+    marketParticipation: [],
+    savingsRates: [],
+    activityHeatmap: []
   };
 
   // 1. 직업 생성
@@ -403,6 +406,103 @@ export function generateDemoData(classroomId: string) {
       createdAt: newsDate.toISOString()
     });
   }
+
+  // 9. 시장 참여율 더미 데이터 생성 (30일간)
+  for (let i = 29; i >= 0; i--) {
+    const date = new Date(now);
+    date.setDate(date.getDate() - i);
+
+    // 주말에는 참여율이 낮고, 주중에는 높음
+    const isWeekend = date.getDay() === 0 || date.getDay() === 6;
+    const baseRate = isWeekend ? 0.3 : 0.7;
+    const participationRate = Math.min(1, baseRate + (Math.random() * 0.3 - 0.15));
+
+    data.marketParticipation.push({
+      id: uuidv4(),
+      classroomId,
+      date: date.toISOString().split('T')[0],
+      participationRate: Math.round(participationRate * 100) / 100,
+      activeStudents: Math.floor(data.students.length * participationRate),
+      totalTransactions: Math.floor(participationRate * 50 + Math.random() * 20),
+      tradingVolume: Math.floor(participationRate * 100000 + Math.random() * 50000),
+      createdAt: date.toISOString()
+    });
+  }
+
+  // 10. 저축률 더미 데이터 생성 (12개월간)
+  for (let i = 11; i >= 0; i--) {
+    const date = new Date(now);
+    date.setMonth(date.getMonth() - i);
+
+    // 계절별 저축률 변동 (겨울/여름방학 높음, 학기 중 낮음)
+    const month = date.getMonth();
+    const isHoliday = month === 0 || month === 1 || month === 7 || month === 8; // 겨울/여름방학
+    const baseSavingsRate = isHoliday ? 0.6 : 0.4;
+    const savingsRate = Math.min(0.9, baseSavingsRate + (Math.random() * 0.2 - 0.1));
+
+    // 총 자산 대비 저축 비율
+    const totalAssets = data.students.reduce((sum: number, student: any) => sum + student.balance, 0);
+    const totalSavings = data.savingsAccounts.reduce((sum: any, account: any) => sum + account.totalBalance, 0);
+
+    data.savingsRates.push({
+      id: uuidv4(),
+      classroomId,
+      month: date.toISOString().split('T')[0].substring(0, 7), // YYYY-MM 형식
+      savingsRate: Math.round(savingsRate * 100) / 100,
+      totalSavings: totalSavings + Math.floor(Math.random() * 50000),
+      totalAssets: totalAssets + Math.floor(Math.random() * 100000),
+      newSavingsAccounts: Math.floor(savingsRate * 8) + Math.floor(Math.random() * 3),
+      averageSavingsAmount: Math.floor(20000 + savingsRate * 30000),
+      createdAt: date.toISOString()
+    });
+  }
+
+  // 11. 활동 히트맵 더미 데이터 생성 (주요 시간대만)
+  data.students.forEach((student: any) => {
+    const studentIndex = data.students.findIndex((s: any) => s.id === student.id);
+
+    // 주중 수업시간 (9-16시)만 생성하여 데이터량 대폭 감소
+    for (let dayOfWeek = 1; dayOfWeek <= 5; dayOfWeek++) {
+      for (let hour = 9; hour <= 16; hour++) {
+        const baseActivity = 0.7 + (Math.random() * 0.3); // 수업시간 높은 활동도
+        const activityLevel = Math.min(1, baseActivity);
+        const transactionCount = Math.floor(activityLevel * 8);
+
+        data.activityHeatmap.push({
+          id: uuidv4(),
+          classroomId,
+          studentId: student.id,
+          dayOfWeek,
+          hour,
+          activityLevel: Math.round(activityLevel * 100) / 100,
+          transactionCount,
+          totalAmount: transactionCount * (Math.floor(Math.random() * 3000) + 1000),
+          createdAt: now.toISOString()
+        });
+      }
+    }
+
+    // 주말 대표시간 몇개만 추가 (10, 14, 18시)
+    for (let dayOfWeek = 0; dayOfWeek <= 6; dayOfWeek += 6) {
+      [10, 14, 18].forEach(hour => {
+        const baseActivity = 0.2 + (Math.random() * 0.3);
+        const activityLevel = Math.min(1, baseActivity);
+        const transactionCount = Math.floor(activityLevel * 5);
+
+        data.activityHeatmap.push({
+          id: uuidv4(),
+          classroomId,
+          studentId: student.id,
+          dayOfWeek,
+          hour,
+          activityLevel: Math.round(activityLevel * 100) / 100,
+          transactionCount,
+          totalAmount: transactionCount * (Math.floor(Math.random() * 2000) + 500),
+          createdAt: now.toISOString()
+        });
+      });
+    }
+  });
 
   return data;
 }
