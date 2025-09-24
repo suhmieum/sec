@@ -933,74 +933,224 @@ function Dashboard() {
           {selectedAnalyticsView === 'patterns' && (
             <div className="space-y-6">
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">거래 패턴 분석 - 상세보기</h3>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900">거래 패턴 분석</h3>
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                    실시간 업데이트
+                  </span>
+                </div>
                 {transactionPattern && transactionPattern.totalTransactions > 0 ? (
-                  <div className="space-y-6">
-                    {/* 거래 통계 */}
+                  <div className="space-y-8">
+                    {/* 거래 통계 카드 - 깔끔한 흰색 디자인 */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                      <div className="text-center p-4 bg-green-50 rounded-xl">
-                        <div className="text-3xl font-bold text-green-600">{transactionPattern.buyCount}</div>
-                        <div className="text-sm text-green-700">총 매수</div>
-                      </div>
-                      <div className="text-center p-4 bg-red-50 rounded-xl">
-                        <div className="text-3xl font-bold text-red-600">{transactionPattern.sellCount}</div>
-                        <div className="text-sm text-red-700">총 매도</div>
-                      </div>
-                      <div className="text-center p-4 bg-blue-50 rounded-xl">
-                        <div className="text-3xl font-bold text-blue-600">
-                          {(transactionPattern.buyRatio * 100).toFixed(1)}%
+                      <div className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg transition-shadow duration-200">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-sm font-medium text-gray-600">총 매수</span>
+                          <span className="text-2xl">📈</span>
                         </div>
-                        <div className="text-sm text-blue-700">매수 비율</div>
+                        <div className="text-3xl font-bold text-green-600">{transactionPattern.buyCount}</div>
+                        <div className="mt-2">
+                          <div className="flex items-center text-xs text-gray-500">
+                            <span className="inline-block w-2 h-2 bg-green-400 rounded-full mr-1"></span>
+                            전체의 {(transactionPattern.buyRatio * 100).toFixed(1)}%
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-center p-4 bg-purple-50 rounded-xl">
+
+                      <div className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg transition-shadow duration-200">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-sm font-medium text-gray-600">총 매도</span>
+                          <span className="text-2xl">📉</span>
+                        </div>
+                        <div className="text-3xl font-bold text-red-600">{transactionPattern.sellCount}</div>
+                        <div className="mt-2">
+                          <div className="flex items-center text-xs text-gray-500">
+                            <span className="inline-block w-2 h-2 bg-red-400 rounded-full mr-1"></span>
+                            전체의 {((1 - transactionPattern.buyRatio) * 100).toFixed(1)}%
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg transition-shadow duration-200">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-sm font-medium text-gray-600">거래 균형도</span>
+                          <span className="text-2xl">⚖️</span>
+                        </div>
+                        <div className="text-3xl font-bold text-blue-600">
+                          {(transactionPattern.buyRatio * 100).toFixed(0)}:{((1 - transactionPattern.buyRatio) * 100).toFixed(0)}
+                        </div>
+                        <div className="mt-2">
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              className="bg-gradient-to-r from-green-500 to-red-500 h-2 rounded-full transition-all duration-500"
+                              style={{ width: `${transactionPattern.buyRatio * 100}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg transition-shadow duration-200">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-sm font-medium text-gray-600">평균 거래액</span>
+                          <span className="text-2xl">💰</span>
+                        </div>
                         <div className="text-3xl font-bold text-purple-600">
                           {transactionPattern.averageTransactionSize?.toLocaleString() || 0}
                         </div>
-                        <div className="text-sm text-purple-700">평균 거래액</div>
-                      </div>
-                    </div>
-
-                    {/* 거래 스타일 분석 */}
-                    <div className="p-4 bg-gray-50 rounded-xl">
-                      <h4 className="font-medium text-gray-900 mb-2">거래 스타일 분석</h4>
-                      <div className="text-lg font-bold text-gray-900 mb-2">
-                        {transactionPattern.tradingStyle === 'aggressive' ? '🔥 공격적 거래' :
-                         transactionPattern.tradingStyle === 'conservative' ? '🛡️ 보수적 거래' : '⚖️ 균형적 거래'}
-                      </div>
-                      <p className="text-sm text-gray-600">
-                        {transactionPattern.tradingStyle === 'aggressive'
-                          ? '매수 거래가 많아 적극적인 투자 성향을 보입니다.'
-                          : transactionPattern.tradingStyle === 'conservative'
-                          ? '매도 거래가 많아 안정적인 투자 성향을 보입니다.'
-                          : '매수와 매도가 균형을 이루는 안정적인 거래 패턴입니다.'}
-                      </p>
-                    </div>
-
-                    {/* 시간대별 거래 패턴 */}
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-4">시간대별 거래 활동</h4>
-                      <div className="grid grid-cols-12 gap-1">
-                        {transactionPattern.hourlyPattern.map((activity, hour) => (
-                          <div key={hour} className="text-center">
-                            <div
-                              className={`h-12 rounded flex items-end justify-center text-xs font-medium ${
-                                hour === transactionPattern.peakHour
-                                  ? 'bg-blue-500 text-white'
-                                  : activity > 0
-                                  ? 'bg-blue-100 text-blue-600'
-                                  : 'bg-gray-100 text-gray-400'
-                              }`}
-                            >
-                              {activity || 0}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1">{hour}</div>
+                        <div className="mt-2">
+                          <div className="text-xs text-gray-500">
+                            {currentClass?.currencyUnit} 단위
                           </div>
-                        ))}
+                        </div>
                       </div>
-                      <div className="text-center mt-4">
-                        <span className="text-sm text-gray-600">
-                          가장 활발한 시간: <span className="font-medium text-blue-600">{transactionPattern.peakHour}시</span>
-                        </span>
+                    </div>
+
+                    {/* 학급 거래 문화 분석 - 깔끔한 카드 디자인 */}
+                    <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-100">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="text-lg font-semibold text-gray-900">우리 학급 거래 문화</h4>
+                        <div className="text-3xl">
+                          {transactionPattern.tradingStyle === 'aggressive' ? '🚀' :
+                           transactionPattern.tradingStyle === 'conservative' ? '🏰' : '⚖️'}
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="text-2xl font-bold text-gray-900">
+                          {transactionPattern.tradingStyle === 'aggressive' ? '활발한 거래 문화' :
+                           transactionPattern.tradingStyle === 'conservative' ? '신중한 거래 문화' : '균형잡힌 거래 문화'}
+                        </div>
+                        <p className="text-sm text-gray-600 leading-relaxed">
+                          {transactionPattern.tradingStyle === 'aggressive'
+                            ? '우리 학급은 적극적인 거래 활동을 보이고 있습니다. 학생들이 경제 활동에 높은 관심을 가지고 활발하게 참여하고 있어요. 다양한 투자 기회를 탐색하는 도전 정신이 돋보입니다.'
+                            : transactionPattern.tradingStyle === 'conservative'
+                            ? '우리 학급은 신중하고 계획적인 거래를 선호합니다. 학생들이 충분히 고민하고 안정적인 투자를 추구하고 있어요. 위험 관리를 잘하고 있는 성숙한 경제 문화입니다.'
+                            : '우리 학급은 매수와 매도가 균형을 이루는 건전한 거래 문화를 가지고 있습니다. 적절한 위험 감수와 안정성을 동시에 추구하는 이상적인 경제 활동을 보여주고 있어요.'}
+                        </p>
+                        <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                          <div className="flex items-center space-x-3">
+                            <div className="text-sm text-gray-500">
+                              <span className="font-semibold text-gray-700">{transactionPattern.totalTransactions}</span> 건의 거래 분석
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              참여 학생 <span className="font-semibold text-gray-700">{students.filter(s => s.totalTransactions > 0).length}</span>명
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-1">
+                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                            <span className="text-xs text-gray-500">실시간</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 시간대별 거래 패턴 - 향상된 시각화 */}
+                    <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                      <div className="flex items-center justify-between mb-6">
+                        <h4 className="text-lg font-bold text-gray-900">24시간 거래 히트맵</h4>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                          <span className="text-xs text-gray-500">실시간 업데이트</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        {/* 오전/오후 구분 */}
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <div className="text-xs font-semibold text-gray-500 mb-2">오전 (AM)</div>
+                            <div className="grid grid-cols-12 gap-1">
+                              {transactionPattern.hourlyPattern.slice(0, 12).map((activity, hour) => {
+                                const maxActivity = Math.max(...transactionPattern.hourlyPattern);
+                                const intensity = maxActivity > 0 ? (activity / maxActivity) : 0;
+                                return (
+                                  <div key={hour} className="relative group">
+                                    <div
+                                      className={`h-8 rounded-lg transition-all duration-300 transform hover:scale-110 cursor-pointer ${
+                                        hour === transactionPattern.peakHour
+                                          ? 'bg-gradient-to-t from-blue-600 to-blue-400 ring-2 ring-blue-300 ring-offset-2'
+                                          : activity > 0
+                                          ? 'bg-gradient-to-t from-blue-500 to-blue-300'
+                                          : 'bg-gray-100'
+                                      }`}
+                                      style={{
+                                        opacity: activity > 0 ? 0.3 + (intensity * 0.7) : 1,
+                                        height: `${Math.max(32, 8 + (intensity * 40))}px`
+                                      }}
+                                    >
+                                      <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
+                                        {activity > 0 && activity}
+                                      </div>
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1 text-center">{hour}</div>
+                                    {/* 툴팁 */}
+                                    <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs rounded-lg px-2 py-1 whitespace-nowrap z-10">
+                                      {hour}시: {activity}건
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          <div>
+                            <div className="text-xs font-semibold text-gray-500 mb-2">오후 (PM)</div>
+                            <div className="grid grid-cols-12 gap-1">
+                              {transactionPattern.hourlyPattern.slice(12).map((activity, index) => {
+                                const hour = index + 12;
+                                const maxActivity = Math.max(...transactionPattern.hourlyPattern);
+                                const intensity = maxActivity > 0 ? (activity / maxActivity) : 0;
+                                return (
+                                  <div key={hour} className="relative group">
+                                    <div
+                                      className={`h-8 rounded-lg transition-all duration-300 transform hover:scale-110 cursor-pointer ${
+                                        hour === transactionPattern.peakHour
+                                          ? 'bg-gradient-to-t from-purple-600 to-purple-400 ring-2 ring-purple-300 ring-offset-2'
+                                          : activity > 0
+                                          ? 'bg-gradient-to-t from-purple-500 to-purple-300'
+                                          : 'bg-gray-100'
+                                      }`}
+                                      style={{
+                                        opacity: activity > 0 ? 0.3 + (intensity * 0.7) : 1,
+                                        height: `${Math.max(32, 8 + (intensity * 40))}px`
+                                      }}
+                                    >
+                                      <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white">
+                                        {activity > 0 && activity}
+                                      </div>
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1 text-center">{hour}</div>
+                                    {/* 툴팁 */}
+                                    <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs rounded-lg px-2 py-1 whitespace-nowrap z-10">
+                                      {hour}시: {activity}건
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 피크 시간 표시 */}
+                        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
+                                {transactionPattern.peakHour}
+                              </div>
+                              <div>
+                                <div className="text-sm font-semibold text-gray-900">피크 타임</div>
+                                <div className="text-xs text-gray-500">가장 활발한 거래 시간대</div>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                {transactionPattern.hourlyPattern[transactionPattern.peakHour]}건
+                              </div>
+                              <div className="text-xs text-gray-500">최대 거래량</div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

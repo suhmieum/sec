@@ -914,18 +914,18 @@ function Students() {
                 )}
 
                 {/* 액션 버튼들 */}
-                <div className="flex space-x-2 pt-2 border-t border-gray-200">
+                <div className="flex space-x-2 pt-3 mt-3 border-t border-gray-200">
                   {student.jobId && (
                     <button
                       onClick={() => viewIndividualPayslip(student)}
-                      className="flex-1 text-xs px-3 py-2 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 font-medium transition-colors"
+                      className="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                     >
-                      💰 급여명세서
+                      💰 명세서
                     </button>
                   )}
                   <button
                     onClick={() => handleEdit(student)}
-                    className="flex-1 text-xs px-3 py-2 bg-sky-100 text-sky-800 rounded-lg hover:bg-sky-200 font-medium transition-colors"
+                    className="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
                     ✏️ 수정
                   </button>
@@ -1037,99 +1037,106 @@ function Students() {
                         )}
                       </div>
                     </div>
-                    <div className="flex flex-col space-y-2 relative">
-                      {/* 기본 액션 버튼들 */}
-                      <div className="flex items-center space-x-3">
-                        {student.jobId && (
-                          <button
-                            onClick={() => viewIndividualPayslip(student)}
-                            className="text-sm px-4 py-2.5 bg-blue-100 text-blue-800 rounded-lg hover:bg-blue-200 font-medium transition-colors shadow-sm"
-                          >
-                            💰 급여명세서
-                          </button>
-                        )}
+                    <div className="flex items-center space-x-2">
+                      {/* 급여명세서 버튼 - 직업 있을 때만 */}
+                      {student.jobId && (
                         <button
-                          onClick={() => handleEdit(student)}
-                          className="text-sm px-4 py-2.5 bg-sky-100 text-sky-800 rounded-lg hover:bg-sky-200 font-medium transition-colors shadow-sm"
+                          onClick={() => viewIndividualPayslip(student)}
+                          className="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                         >
-                          ✏️ 수정
+                          💰 급여명세서
                         </button>
-                      </div>
+                      )}
+
+                      {/* 수정 버튼 */}
+                      <button
+                        onClick={() => handleEdit(student)}
+                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        ✏️ 수정
+                      </button>
 
                       {/* 관리 드롭다운 메뉴 */}
                       <div className="relative">
                         <button
                           onClick={() => setSelectedStudentForActions(selectedStudentForActions === student.id ? null : student.id)}
-                          className="text-sm px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium transition-colors flex items-center shadow-sm"
+                          className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                         >
                           ⚙️ 관리
-                          <span className={`ml-2 transition-transform ${selectedStudentForActions === student.id ? 'rotate-180' : ''}`}>▼</span>
+                          <svg className={`ml-1 w-4 h-4 transition-transform ${selectedStudentForActions === student.id ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
                         </button>
 
                         {selectedStudentForActions === student.id && (
-                          <div className="absolute right-0 top-8 bg-white shadow-lg border rounded-lg p-2 z-20 min-w-52">
-                            <div className="space-y-1">
-                              <div className="text-xs text-gray-500 px-2 py-1 border-b">신용 관리</div>
-                              <button
-                                onClick={() => {
-                                  addLateRecord(student.id);
-                                  setSelectedStudentForActions(null);
-                                }}
-                                className="w-full text-xs px-3 py-2 bg-orange-50 text-orange-800 rounded-md hover:bg-orange-100 text-left transition-colors"
-                                title="지각 기록 추가 (-10점)"
-                              >
-                                📝 지각 기록 (-10점)
-                              </button>
-                              <button
-                                onClick={() => {
-                                  addHomeworkMissed(student.id);
-                                  setSelectedStudentForActions(null);
-                                }}
-                                className="w-full text-xs px-3 py-2 bg-red-50 text-red-800 rounded-md hover:bg-red-100 text-left transition-colors"
-                                title="숙제 미제출 기록 (-15점)"
-                              >
-                                📚 숙제 미제출 (-15점)
-                              </button>
-                              <button
-                                onClick={() => {
-                                  addBookOverdue(student.id);
-                                  setSelectedStudentForActions(null);
-                                }}
-                                className="w-full text-xs px-3 py-2 bg-purple-50 text-purple-800 rounded-md hover:bg-purple-100 text-left transition-colors"
-                                title="도서 연체 기록 (-20점)"
-                              >
-                                📖 도서 연체 (-20점)
-                              </button>
+                          <div className="absolute right-0 top-10 bg-white shadow-lg border border-gray-200 rounded-lg py-2 z-20 w-56">
+                            {/* 신용 관리 섹션 */}
+                            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">신용 관리</div>
+                            <button
+                              onClick={() => {
+                                addLateRecord(student.id);
+                                setSelectedStudentForActions(null);
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between"
+                            >
+                              <span>⏰ 지각 기록</span>
+                              <span className="text-xs text-orange-600">-10점</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                addHomeworkMissed(student.id);
+                                setSelectedStudentForActions(null);
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between"
+                            >
+                              <span>📚 숙제 미제출</span>
+                              <span className="text-xs text-red-600">-15점</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                addBookOverdue(student.id);
+                                setSelectedStudentForActions(null);
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between"
+                            >
+                              <span>📖 도서 연체</span>
+                              <span className="text-xs text-purple-600">-20점</span>
+                            </button>
 
-                              <div className="text-xs text-gray-500 px-2 py-1 border-b border-t mt-2">잔액 조정</div>
+
+                            {/* 잔액 조정 섹션 */}
+                            <div className="border-t mt-2 pt-2">
+                              <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">잔액 조정</div>
                               <button
                                 onClick={() => {
                                   handleBalanceAdjustment(student, 1000);
                                   setSelectedStudentForActions(null);
                                 }}
-                                className="w-full text-xs px-3 py-2 bg-green-50 text-green-800 rounded-md hover:bg-green-100 text-left transition-colors"
-                                title="잔액 +1000"
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between"
                               >
-                                💰 +1,000{currentClass.currencyUnit}
+                                <span>💰 보너스 지급</span>
+                                <span className="text-xs text-green-600">+1,000</span>
                               </button>
                               <button
                                 onClick={() => {
                                   handleBalanceAdjustment(student, -1000);
                                   setSelectedStudentForActions(null);
                                 }}
-                                className="w-full text-xs px-3 py-2 bg-red-50 text-red-800 rounded-md hover:bg-red-100 text-left transition-colors"
-                                title="잔액 -1000"
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between"
                               >
-                                💸 -1,000{currentClass.currencyUnit}
+                                <span>💸 벌금 부과</span>
+                                <span className="text-xs text-red-600">-1,000</span>
                               </button>
+                            </div>
 
-                              <div className="text-xs text-gray-500 px-2 py-1 border-b border-t mt-2">위험 작업</div>
+                            {/* 삭제 섹션 */}
+                            <div className="border-t mt-2 pt-2">
                               <button
                                 onClick={() => {
                                   handleDelete(student.id);
                                   setSelectedStudentForActions(null);
                                 }}
-                                className="w-full text-xs px-3 py-2 bg-red-50 text-red-800 rounded-md hover:bg-red-100 text-left transition-colors"
+                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
                               >
                                 🗑️ 학생 삭제
                               </button>
