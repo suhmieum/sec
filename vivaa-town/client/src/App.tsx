@@ -11,6 +11,9 @@ import Items from './pages/Items';
 import Banking from './pages/Banking';
 import Stocks from './pages/Stocks';
 import Achievements from './pages/Achievements';
+import AIPlan from './pages/AIPlan';
+import PortfolioDetailed from './pages/PortfolioDetailed';
+import PortfolioList from './pages/PortfolioList';
 // import Analytics from './pages/Analytics';
 import { useInitializeStores, useAppStore, useClassroomStore } from './state';
 
@@ -37,6 +40,9 @@ function AppContent() {
         <Route path="/banking" element={<Banking />} />
         <Route path="/stocks" element={<Stocks />} />
         <Route path="/achievements" element={<Achievements />} />
+        <Route path="/ai-plan" element={<AIPlan />} />
+        <Route path="/portfolio" element={<PortfolioList />} />
+        <Route path="/portfolio/:studentId" element={<PortfolioDetailed />} />
         {/* <Route path="/analytics" element={<Analytics />} /> */}
       </Routes>
     </SidebarLayout>

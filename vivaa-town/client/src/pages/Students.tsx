@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 import { useCurrentClassroom, useCurrentStudents, useCurrentJobs, useStudentStore } from '../state';
 import { useNotifications } from '../components/NotificationSystem';
 
@@ -28,6 +29,7 @@ interface PayrollResult {
 }
 
 function Students() {
+  const navigate = useNavigate();
   const [isCreating, setIsCreating] = useState(false);
   const [editingStudent, setEditingStudent] = useState<any>(null);
   const [showPayrollModal, setShowPayrollModal] = useState(false);
@@ -763,7 +765,26 @@ function Students() {
                     {selectedStudentForActions === student.id && (
                       <div className="absolute right-0 top-12 bg-white shadow-lg border rounded-lg p-2 z-20 min-w-52">
                         <div className="space-y-1">
-                          <div className="text-xs text-gray-500 px-2 py-1 border-b">신용 관리</div>
+                          <div className="text-xs text-gray-500 px-2 py-1 border-b">학생 관리</div>
+                          <button
+                            onClick={() => {
+                              navigate(`/portfolio/${student.id}`);
+                              setSelectedStudentForActions(null);
+                            }}
+                            className="w-full text-xs px-3 py-2 bg-indigo-50 text-indigo-800 rounded-md hover:bg-indigo-100 text-left transition-colors"
+                          >
+                            📊 포트폴리오 보기
+                          </button>
+                          <button
+                            onClick={() => {
+                              viewIndividualPayslip(student);
+                              setSelectedStudentForActions(null);
+                            }}
+                            className="w-full text-xs px-3 py-2 bg-blue-50 text-blue-800 rounded-md hover:bg-blue-100 text-left transition-colors"
+                          >
+                            💳 급여명세서
+                          </button>
+                          <div className="text-xs text-gray-500 px-2 py-1 border-b border-t mt-2">신용 관리</div>
                           <button
                             onClick={() => {
                               addLateRecord(student.id);
@@ -1070,8 +1091,29 @@ function Students() {
 
                         {selectedStudentForActions === student.id && (
                           <div className="absolute right-0 top-10 bg-white shadow-lg border border-gray-200 rounded-lg py-2 z-20 w-56">
+                            {/* 학생 관리 섹션 */}
+                            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">학생 관리</div>
+                            <button
+                              onClick={() => {
+                                navigate(`/portfolio/${student.id}`);
+                                setSelectedStudentForActions(null);
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                            >
+                              <span>📊 포트폴리오 보기</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                viewIndividualPayslip(student);
+                                setSelectedStudentForActions(null);
+                              }}
+                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                            >
+                              <span>💳 급여명세서</span>
+                            </button>
+
                             {/* 신용 관리 섹션 */}
-                            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">신용 관리</div>
+                            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider border-t mt-1">신용 관리</div>
                             <button
                               onClick={() => {
                                 addLateRecord(student.id);

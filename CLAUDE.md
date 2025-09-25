@@ -32,7 +32,7 @@ npm run start  # 프로덕션 실행
 
 ## 현재 구현 상태
 
-### ✅ 완료된 기능 (2025.09.23 기준)
+### ✅ 완료된 기능 (2025.09.25 기준)
 - 프로젝트 구조 설정 (React + Express)
 - 기본 라우팅 구성 (Home, Classes, Students, Jobs, Transactions, Banking, Stocks, Achievements)
 - TypeORM 엔티티 설계 (Class, User)
@@ -53,6 +53,9 @@ npm run start  # 프로덕션 실행
 - **🔍 교사용 분석 대시보드** (경제 지표, 활동 히트맵, 거래 패턴)
 - **🏠 홈 화면 통합 대시보드** (탭 기반 분석 인터페이스)
 - **🎮 종합 시연용 데이터** (15명 학생, 8개 주식, 30일 거래 데이터)
+- **🚀 프리미엄 AI 기능 시스템** (API 키 관리, 유료 기능 모달, 프리미엄 스토어)
+- **🤖 AI 교사 코멘트** (Gemini 1.5 Flash 기반 전문적 경제교육 피드백)
+- **📊 학생 포트폴리오** (개별 경제활동 종합 분석 및 AI 컨설팅)
 
 ### 💳 새로 구현된 신용등급 시스템
 - **신용점수**: 300~850점 미국식 신용점수 체계 적용
@@ -63,10 +66,10 @@ npm run start  # 프로덕션 실행
 - **자동 점수 관리**: 거래 활동 시 점수 상승, 업적 달성 보너스
 
 ### 🚧 진행 중/미완성
-- 📄 **월간 경제 활동 보고서 및 학기말 포트폴리오 자동 생성 (PDF)** ⬅️ 현재 작업 중
 - 💳 **학생용 디지털 지갑 UI** (카드 플립 애니메이션, 3D 효과)
 - 📱 **학생 전용 페이지 및 QR코드 거래 시스템**
 - 🎨 **UI/UX 개선** (애니메이션, 아이콘, 색상 테마 최적화)
+- 📄 **PDF 보고서 자동 생성** (월간 경제 활동 보고서, 학기말 포트폴리오)
 
 ### ⏸️ 보류된 기능 (백엔드 관련)
 - PostgreSQL 데이터베이스 연결
@@ -113,6 +116,11 @@ git push origin main
 ### App Store
 - 전역 상태 (currentClassId, lastLogin)
 - 앱 초기화 및 설정
+
+### Premium Store
+- API 키 관리 (geminiApiKey, isPremiumActive)
+- API 키 유효성 검증 (validateApiKey)
+- 프리미엄 기능 상태 관리
 
 ## 주요 기능 요구사항 (PRD 기반)
 
@@ -168,7 +176,7 @@ git push origin main
 - **UUID** (고유 ID 생성)
 
 ### 상태 관리 패턴
-- **Zustand Stores**: 분리된 스토어 (App, Classroom, Student, Job, Stock, Savings, Achievement, Analytics, Market)
+- **Zustand Stores**: 분리된 스토어 (App, Classroom, Student, Job, Stock, Savings, Achievement, Analytics, Market, AIPlan, Portfolio, Premium)
 - **LocalStorage 어댑터**: 데이터 영속성
 - **Schema 검증**: Zod를 통한 타입 안전성
 - **옵티미스틱 업데이트**: 즉시 UI 반영
@@ -180,7 +188,8 @@ src/
 ├── components/           # 재사용 컴포넌트
 │   ├── Dashboard.tsx    # 실시간 대시보드 (분석 탭 통합)
 │   ├── Leaderboard.tsx  # 게이미피케이션 리더보드
-│   └── NotificationSystem.tsx # 알림 시스템
+│   ├── NotificationSystem.tsx # 알림 시스템
+│   └── PremiumModal.tsx # 프리미엄 기능 모달
 ├── pages/               # 페이지 컴포넌트
 │   ├── Classes.tsx      # 학급 관리 (시연 데이터 생성)
 │   ├── Students.tsx     # 학생 관리 (급여 시스템 포함)
@@ -190,8 +199,11 @@ src/
 │   ├── Stocks.tsx       # 주식 투자 (차트, 뉴스, 포트폴리오)
 │   ├── Achievements.tsx # 업적/뱃지 시스템
 │   ├── Analytics.tsx    # 교사용 분석 대시보드
+│   ├── AIPlan.tsx       # AI 활동 계획 (프리미엄)
+│   ├── PortfolioList.tsx # 학생 포트폴리오 목록 (프리미엄)
+│   ├── PortfolioDetailed.tsx # 학생 포트폴리오 상세 (프리미엄)
 │   └── Items.tsx        # 아이템 상점
-├── state/               # Zustand 스토어 (9개 스토어)
+├── state/               # Zustand 스토어 (12개 스토어)
 ├── schemas/             # Zod 스키마
 ├── utils/               # 유틸리티 함수 (generateDemoData.ts)
 └── storage/             # 스토리지 어댑터
@@ -202,8 +214,36 @@ src/
 2. 인증 시스템 (JWT)
 3. 프론트엔드-백엔드 통합
 
-## 최근 업데이트 (2025.09.24)
-### 🎨 브랜딩 및 UX 개선 (2025.09.24)
+## 최근 업데이트 (2025.09.25)
+### 🚀 프리미엄 AI 기능 시스템 구축 (2025.09.25)
+- 🔐 **프리미엄 모달 시스템**: AI 계획과 포트폴리오를 유료 기능으로 전환
+- 🗝️ **API 키 관리**: 사용자 직접 Gemini API 키 입력으로 기능 활성화
+- 🎯 **프리미엄 스토어**: LocalStorage 기반 API 키 영구 저장 및 검증 시스템
+- 🔒 **보안 강화**: 하드코딩된 API 키 완전 제거, 환경변수 삭제
+- 🎨 **하늘색 테마**: 모든 프리미엄 기능을 일관된 브랜드 컬러로 통일
+
+### 🤖 AI 교사 코멘트 시스템 대폭 개선
+- 📊 **전문가급 분석**: 15개 상세 지표 기반 종합적 경제활동 분석
+- 📝 **고품질 피드백**: 500-700자 분량의 전문적인 교육 컨설팅
+- 🏗️ **구조화된 분석**: 성과→강점→개선→실행의 4단계 체계적 피드백
+- 💡 **실용적 가이드**: 구체적 목표 수치가 포함된 액션 아이템 제공
+- 🎯 **UI/UX 개선**: 포트폴리오 상단에 눈에 띄는 AI 코멘트 생성 카드 배치
+
+### 🌟 새로 구현된 프리미엄 기능
+- **PremiumModal 컴포넌트**: 유료 기능 안내 및 API 키 입력 인터페이스
+- **premiumStore**: API 키 유효성 검증 및 프리미엄 상태 관리
+- **AI 경제교육 전문가**: Gemini 1.5 Flash 기반 고품질 교사 피드백
+- **포트폴리오 AI 분석**: 자산 구성, 거래 패턴, 학습 태도 종합 분석
+- **Google AI Studio 연동**: 무료 API 키 발급 가이드 링크 제공
+
+### 💻 기술적 개선
+- **geminiService 개선**: 프리미엄 스토어 기반 동적 API 키 로딩
+- **모델 최적화**: gemini-2.0-flash-exp → gemini-1.5-flash 안정화
+- **토큰 한도 증대**: 300 → 1000 토큰으로 장문 응답 지원
+- **순환 의존성 해결**: 지연 초기화 패턴으로 안전한 모듈 로딩
+- **상태 관리 확장**: 기존 10개 스토어에 premiumStore 추가
+
+### 🎨 이전 업데이트 (2025.09.24) - 브랜딩 및 UX 개선
 - 🏷️ **비바타운 → 비바빌리지 리브랜딩** (전체 UI/타이틀 변경)
 - 🎯 **사이드바 로고 간소화** (타운 아이콘 제거, 심플 텍스트 로고)
 - 🚀 **최초 진입 UX 개선** (학급 없으면 자동 학급 관리 페이지 이동)

@@ -8,6 +8,9 @@ export { useStockStore } from './stockStore';
 export { useAchievementStore } from './achievementStore';
 export { useMarketStore } from './marketStore';
 export { useAnalyticsStore } from './analyticsStore';
+export { useAIPlanStore } from './aiPlanStore';
+export { usePortfolioStore } from './portfolioStore';
+export { usePremiumStore } from './premiumStore';
 
 // Import hooks for use in selectors
 import { useAppStore } from './appStore';

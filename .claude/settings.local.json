@@ -27,7 +27,9 @@
       "Bash(dir dist)",
       "Bash(copy:*)",
       "Bash(git pull:*)",
-      "Bash(xcopy:*)"
+      "Bash(xcopy:*)",
+      "WebSearch",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []
