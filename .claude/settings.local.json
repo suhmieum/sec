@@ -29,7 +29,8 @@
       "Bash(git pull:*)",
       "Bash(xcopy:*)",
       "WebSearch",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

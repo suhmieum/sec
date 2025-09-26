@@ -97,6 +97,9 @@ function SidebarLayout({ children }: SidebarLayoutProps) {
         </svg>
       )
     },
+  ];
+
+  const premiumNavigation = [
     {
       name: 'AI 계획',
       path: '/ai-plan',
@@ -107,7 +110,7 @@ function SidebarLayout({ children }: SidebarLayoutProps) {
       )
     },
     {
-      name: '포트폴리오',
+      name: 'AI 포트폴리오',
       path: '/portfolio',
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,6 +119,9 @@ function SidebarLayout({ children }: SidebarLayoutProps) {
       )
     },
   ];
+
+  // Combined navigation for page title lookup
+  const allNavigation = [...navigation, ...premiumNavigation];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex">
@@ -148,6 +154,7 @@ function SidebarLayout({ children }: SidebarLayoutProps) {
 
           {/* Navigation */}
           <nav className="flex-1 px-2 py-4 space-y-1">
+            {/* Regular Navigation */}
             {navigation.map((item) => (
               <Link
                 key={item.path}
@@ -156,6 +163,32 @@ function SidebarLayout({ children }: SidebarLayoutProps) {
                   isActive(item.path)
                     ? 'bg-accent-100 text-accent-700 shadow-sm'
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+                title={isSidebarCollapsed ? item.name : undefined}
+              >
+                <span className={isSidebarCollapsed ? 'mx-auto' : 'mr-3'}>{item.icon}</span>
+                {!isSidebarCollapsed && item.name}
+              </Link>
+            ))}
+
+            {/* Premium Section */}
+            {!isSidebarCollapsed && (
+              <div className="pt-4 mt-4 border-t border-gray-200">
+                <div className="px-3 mb-2">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">프리미엄</p>
+                </div>
+              </div>
+            )}
+
+            {/* Premium Navigation */}
+            {premiumNavigation.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  isActive(item.path)
+                    ? 'bg-purple-100 text-purple-700 shadow-sm'
+                    : 'text-gray-600 hover:bg-purple-50 hover:text-purple-700'
                 }`}
                 title={isSidebarCollapsed ? item.name : undefined}
               >
@@ -219,6 +252,7 @@ function SidebarLayout({ children }: SidebarLayoutProps) {
           <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
             <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
               <nav className="px-2 space-y-1">
+                {/* Regular Navigation */}
                 {navigation.map((item) => (
                   <Link
                     key={item.path}
@@ -227,6 +261,30 @@ function SidebarLayout({ children }: SidebarLayoutProps) {
                       isActive(item.path)
                         ? 'bg-accent-100 text-accent-700 shadow-sm'
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    }`}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <span className="mr-3">{item.icon}</span>
+                    {item.name}
+                  </Link>
+                ))}
+
+                {/* Premium Section */}
+                <div className="pt-4 mt-4 border-t border-gray-200">
+                  <div className="px-3 mb-2">
+                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">프리미엄</p>
+                  </div>
+                </div>
+
+                {/* Premium Navigation */}
+                {premiumNavigation.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`flex items-center px-3 py-3 rounded-xl text-base font-medium transition-all duration-200 ${
+                      isActive(item.path)
+                        ? 'bg-purple-100 text-purple-700 shadow-sm'
+                        : 'text-gray-600 hover:bg-purple-50 hover:text-purple-700'
                     }`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -260,7 +318,7 @@ function SidebarLayout({ children }: SidebarLayoutProps) {
           <div className="flex items-center space-x-4">
             {/* Breadcrumb or Page Title can go here */}
             <h2 className="text-lg font-semibold text-gray-800">
-              {navigation.find(item => item.path === location.pathname)?.name || '대시보드'}
+              {allNavigation.find(item => item.path === location.pathname)?.name || '대시보드'}
             </h2>
           </div>
 

@@ -49,7 +49,7 @@ export default function PremiumModal({ isOpen, onClose, featureName, onApiKeySub
           <div className="bg-gradient-to-r from-sky-100 to-blue-100 rounded-lg p-6 mb-6">
             <SparklesIcon className="h-12 w-12 text-sky-500 mx-auto mb-3" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              {featureName}은 유료 기능입니다
+              해당 기능은 구독자 전용 기능입니다
             </h3>
             <p className="text-gray-600 text-sm">
               더 많은 기능을 이용하려면 유료 구독해주세요.
@@ -59,7 +59,7 @@ export default function PremiumModal({ isOpen, onClose, featureName, onApiKeySub
           <div className="bg-sky-50 rounded-lg p-4 mb-6">
             <h4 className="font-semibold text-gray-900 mb-2">또는 직접 API 키를 입력하세요</h4>
             <p className="text-xs text-gray-500 mb-4">
-              Google AI Studio에서 무료 Gemini API 키를 발급받아 사용할 수 있습니다
+              Google AI Studio에서 Gemini API 키를 발급받아 사용할 수 있습니다
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -91,7 +91,7 @@ export default function PremiumModal({ isOpen, onClose, featureName, onApiKeySub
               rel="noopener noreferrer"
               className="text-sky-600 hover:text-sky-700 text-sm font-medium"
             >
-              Google AI Studio에서 무료 API 키 발급받기 →
+              Google AI Studio에서 API 키 발급받기 →
             </a>
           </div>
         </div>

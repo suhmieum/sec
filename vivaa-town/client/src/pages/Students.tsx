@@ -71,6 +71,11 @@ function Students() {
   const { showSalaryNotification, showEventNotification } = useNotifications();
   const { register, handleSubmit, reset, formState: { errors } } = useForm<StudentFormData>();
 
+  // Debug: Log data whenever component renders
+  console.log('[DEBUG] Students component render - students:', students?.length, 'jobs:', jobs?.length);
+  console.log('[DEBUG] Students with jobId:', students?.filter(s => s.jobId)?.map(s => ({ name: s.name, jobId: s.jobId })));
+  console.log('[DEBUG] Jobs available:', jobs?.map(j => ({ id: j.id, title: j.title })));
+
   // 급여 계산 함수
   const calculatePayroll = (student: any) => {
     const job = jobs.find(j => j.id === student.jobId);
@@ -229,9 +234,19 @@ function Students() {
   };
 
   const getJobTitle = (jobId: string | undefined) => {
-    if (!jobId) return '직업 없음';
+    console.log(`[DEBUG] getJobTitle called with jobId:`, jobId);
+    if (!jobId) {
+      console.log(`[DEBUG] No jobId provided, returning '직업 없음'`);
+      return '직업 없음';
+    }
+    console.log(`[DEBUG] Looking for job in jobs array:`, jobs.map(j => ({ id: j.id, title: j.title })));
     const job = jobs.find(j => j.id === jobId);
-    return job ? job.title : '직업 없음';
+    if (!job) {
+      console.warn(`[DEBUG] Job not found for jobId: ${jobId}, available jobs:`, jobs.map(j => ({ id: j.id, title: j.title })));
+      return '직업 없음';
+    }
+    console.log(`[DEBUG] Found job:`, job.title);
+    return job.title;
   };
 
   const getJobSalary = (jobId: string | undefined) => {

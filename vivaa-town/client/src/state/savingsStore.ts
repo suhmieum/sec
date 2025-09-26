@@ -6,6 +6,7 @@ import { STORAGE_KEYS } from '../storage/keys';
 
 interface SavingsState {
   savingsAccounts: SavingsAccount[];
+  lastInterestProcessDate: string | null;
 
   // Actions
   loadSavingsAccounts: () => void;
@@ -24,19 +25,34 @@ interface SavingsState {
   calculateMaturityAmount: (accountId: string) => number;
   processMaturity: (accountId: string) => boolean;
 
+  // Auto Process
+  processMonthlyInterest: () => number; // 월별 이자 자동 처리
+  checkAndProcessInterest: () => void; // 이자 처리 체크
+  getUpcomingMaturityAccounts: (days?: number) => SavingsAccount[]; // 만기 임박 계좌
+
   // Utilities
   calculateCurrentBalance: (account: SavingsAccount) => number;
   getRemainingMonths: (account: SavingsAccount) => number;
   getMonthlyInterest: (account: SavingsAccount) => number;
+  getTotalInterestPaidThisMonth: () => number;
 }
 
 export const useSavingsStore = create<SavingsState>((set, get) => ({
   savingsAccounts: [],
+  lastInterestProcessDate: null,
 
   loadSavingsAccounts: () => {
     const stored = storageAdapter.get(STORAGE_KEYS.SAVINGS_ACCOUNTS);
+    const lastProcessDate = storageAdapter.get('lastInterestProcessDate');
+
     if (stored) {
-      set({ savingsAccounts: stored });
+      set({
+        savingsAccounts: stored,
+        lastInterestProcessDate: lastProcessDate
+      });
+
+      // 로드 후 자동으로 이자 처리 체크
+      setTimeout(() => get().checkAndProcessInterest(), 100);
     }
   },
 
@@ -173,6 +189,100 @@ export const useSavingsStore = create<SavingsState>((set, get) => ({
     } else {
       return account.totalBalance * monthlyRate;
     }
+  },
+
+  // 월별 이자 자동 처리
+  processMonthlyInterest: () => {
+    const { savingsAccounts } = get();
+    let totalInterest = 0;
+
+    const updatedAccounts = savingsAccounts.map(account => {
+      if (account.isMatured) return account;
+
+      const monthlyInterest = get().getMonthlyInterest(account);
+      totalInterest += monthlyInterest;
+
+      return {
+        ...account,
+        totalBalance: account.totalBalance + monthlyInterest
+      };
+    });
+
+    set({
+      savingsAccounts: updatedAccounts,
+      lastInterestProcessDate: new Date().toISOString()
+    });
+
+    // 마지막 처리 날짜 저장
+    storageAdapter.set('lastInterestProcessDate', new Date().toISOString());
+
+    return totalInterest;
+  },
+
+  // 이자 처리 체크 (매월 1일 자동 처리)
+  checkAndProcessInterest: () => {
+    const { lastInterestProcessDate } = get();
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+    // 마지막 처리 날짜가 없거나, 현재 월과 다른 경우 처리
+    if (!lastInterestProcessDate) {
+      get().processMonthlyInterest();
+      return;
+    }
+
+    const lastProcessDate = new Date(lastInterestProcessDate);
+    const lastMonth = `${lastProcessDate.getFullYear()}-${String(lastProcessDate.getMonth() + 1).padStart(2, '0')}`;
+
+    if (currentMonth !== lastMonth) {
+      const totalInterest = get().processMonthlyInterest();
+
+      // 알림 표시 (NotificationSystem이 있다면)
+      if (typeof window !== 'undefined' && window.dispatchEvent) {
+        window.dispatchEvent(new CustomEvent('bankingNotification', {
+          detail: {
+            type: 'info',
+            title: '💰 월간 이자 지급',
+            message: `총 ${totalInterest.toLocaleString()}원의 이자가 자동 지급되었습니다.`
+          }
+        }));
+      }
+    }
+  },
+
+  // 만기 임박 계좌
+  getUpcomingMaturityAccounts: (days = 30) => {
+    const { savingsAccounts } = get();
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() + days);
+
+    return savingsAccounts.filter(account => {
+      if (account.isMatured) return false;
+
+      const maturityDate = new Date(account.maturityDate);
+      return maturityDate <= targetDate && maturityDate > new Date();
+    });
+  },
+
+  // 이번 달 지급된 총 이자
+  getTotalInterestPaidThisMonth: () => {
+    const { lastInterestProcessDate } = get();
+    if (!lastInterestProcessDate) return 0;
+
+    const lastProcessDate = new Date(lastInterestProcessDate);
+    const now = new Date();
+
+    // 같은 월인지 확인
+    if (
+      lastProcessDate.getFullYear() === now.getFullYear() &&
+      lastProcessDate.getMonth() === now.getMonth()
+    ) {
+      return get().savingsAccounts.reduce((sum, account) => {
+        return sum + get().getMonthlyInterest(account);
+      }, 0);
+    }
+
+    return 0;
   },
 }));
 

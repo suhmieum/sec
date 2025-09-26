@@ -31,7 +31,7 @@ function Classes() {
 
   const { classrooms, loadClassrooms, createClassroom, updateClassroom, deleteClassroom } = useClassroomStore();
   const { currentClassId, setCurrentClassId } = useAppStore();
-  const { createStudent, getStudentsByClassroom, assignJob, diversifyCreditScores } = useStudentStore();
+  const { createStudent, getStudentsByClassroom, assignJob, diversifyCreditScores, setStudents } = useStudentStore();
   const { createJob } = useJobStore();
   const { createStock, addStockTransaction, createStockPortfolio } = useStockStore();
   const { createSavingsAccount } = useSavingsStore();
@@ -141,14 +141,14 @@ function Classes() {
       const demoData = generateDemoData(createdClass.id);
 
       // 3. 직업 먼저 생성 (학생이 직업을 참조하므로)
+      console.log('[DEBUG] Creating jobs:', demoData.jobs.map((j: any) => ({ id: j.id, title: j.title })));
       demoData.jobs.forEach((job: any) => {
         createJob(job);
       });
 
-      // 4. 학생 생성
-      demoData.students.forEach((student: any) => {
-        createStudent(student);
-      });
+      // 4. 학생 생성 (demo data용 직접 추가)
+      console.log('[DEBUG] Creating students:', demoData.students.map((s: any) => ({ name: s.name, jobId: s.jobId })));
+      setStudents(demoData.students);
 
       // 5. 주식 생성
       demoData.stocks.forEach((stock: any) => {

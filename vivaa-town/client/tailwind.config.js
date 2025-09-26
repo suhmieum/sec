@@ -65,5 +65,32 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function({ addUtilities }) {
+      addUtilities({
+        '.scrollbar-hide': {
+          /* IE and Edge */
+          '-ms-overflow-style': 'none',
+          /* Firefox */
+          'scrollbar-width': 'none',
+          /* Safari and Chrome */
+          '&::-webkit-scrollbar': {
+            display: 'none'
+          }
+        },
+        '.perspective-1000': {
+          'perspective': '1000px'
+        },
+        '.transform-style-preserve-3d': {
+          'transform-style': 'preserve-3d'
+        },
+        '.backface-hidden': {
+          'backface-visibility': 'hidden'
+        },
+        '.transform-rotate-y-180': {
+          'transform': 'rotateY(180deg)'
+        }
+      })
+    }
+  ],
 }

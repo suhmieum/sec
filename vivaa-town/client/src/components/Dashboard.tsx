@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import CountUp from 'react-countup';
 import {
@@ -124,12 +124,56 @@ function Dashboard() {
     return null;
   }
 
-  // 학생 자산 분포 데이터
-  const wealthDistribution = [
-    { name: '상위 20%', value: 45, students: Math.floor(students.length * 0.2) },
-    { name: '중위 40%', value: 35, students: Math.floor(students.length * 0.4) },
-    { name: '하위 40%', value: 20, students: Math.floor(students.length * 0.4) },
-  ];
+  // 실제 학생 자산 분포 데이터 (메모이제이션으로 성능 최적화)
+  const wealthDistribution = useMemo(() => {
+    if (students.length === 0) {
+      return [
+        { name: '데이터 없음', value: 100, students: 0 }
+      ];
+    }
+
+    // 학생들의 실제 잔고 데이터로 계산
+    const sortedBalances = students
+      .map(s => s.balance)
+      .sort((a, b) => b - a);
+
+    const totalBalance = sortedBalances.reduce((sum, balance) => sum + balance, 0);
+
+    if (totalBalance === 0) {
+      return [
+        { name: '자산 없음', value: 100, students: students.length }
+      ];
+    }
+
+    const top20Count = Math.max(1, Math.floor(students.length * 0.2));
+    const middle40Count = Math.max(1, Math.floor(students.length * 0.4));
+    const bottom40Count = students.length - top20Count - middle40Count;
+
+    const top20Balance = sortedBalances.slice(0, top20Count).reduce((sum, b) => sum + b, 0);
+    const middle40Balance = sortedBalances.slice(top20Count, top20Count + middle40Count).reduce((sum, b) => sum + b, 0);
+    const bottom40Balance = sortedBalances.slice(top20Count + middle40Count).reduce((sum, b) => sum + b, 0);
+
+    return [
+      {
+        name: '상위 20%',
+        value: Math.round((top20Balance / totalBalance) * 100),
+        students: top20Count,
+        avgBalance: Math.round(top20Balance / top20Count)
+      },
+      {
+        name: '중위 40%',
+        value: Math.round((middle40Balance / totalBalance) * 100),
+        students: middle40Count,
+        avgBalance: middle40Count > 0 ? Math.round(middle40Balance / middle40Count) : 0
+      },
+      {
+        name: '하위 40%',
+        value: Math.round((bottom40Balance / totalBalance) * 100),
+        students: bottom40Count,
+        avgBalance: bottom40Count > 0 ? Math.round(bottom40Balance / bottom40Count) : 0
+      },
+    ].filter(item => item.students > 0); // 0명인 그룹 제거
+  }, [students]);
 
   // 실시간 거래 피드에서 표시할 거래들 (liveTransactions가 비어있으면 기본 데이터 사용)
   const displayTransactions = liveTransactions.length > 0 ? liveTransactions : [
@@ -382,9 +426,9 @@ function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 자산 분포 차트 */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.4 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.3 }}
           className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
         >
           <h3 className="text-lg font-semibold text-gray-900 mb-4">학급 자산 분포</h3>
@@ -403,7 +447,12 @@ function Dashboard() {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip
+                formatter={(value: any, name: any, props: any) => [
+                  `${value}% (${props.payload.students}명, 평균 ${props.payload.avgBalance?.toLocaleString() || 0}코인)`,
+                  name
+                ]}
+              />
             </PieChart>
           </ResponsiveContainer>
           <div className="mt-4 space-y-2">
@@ -416,7 +465,14 @@ function Dashboard() {
                   />
                   <span className="text-gray-600">{item.name}</span>
                 </div>
-                <span className="font-medium text-gray-900">{item.students}명</span>
+                <div className="text-right">
+                  <span className="font-medium text-gray-900">{item.students}명</span>
+                  {item.avgBalance !== undefined && (
+                    <div className="text-xs text-gray-500">
+                      평균 {item.avgBalance.toLocaleString()}코인
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>

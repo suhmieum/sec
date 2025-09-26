@@ -16,6 +16,7 @@ interface StudentState {
 
   // Actions
   loadStudents: () => void;
+  setStudents: (students: Student[]) => void; // For demo data import
   createStudent: (data: {
     classroomId: ID;
     name: string;
@@ -95,6 +96,18 @@ export const useStudentStore = create<StudentState>()(
       } catch (error) {
         console.error('Failed to load students:', error);
         set({ students: [], isLoading: false });
+      }
+    },
+
+    // Set students directly (for demo data import)
+    setStudents: (students) => {
+      try {
+        // Validate all students
+        const validStudents = students.map(student => StudentSchema.parse(student));
+        set({ students: validStudents });
+        storageAdapter.set(STORAGE_KEYS.STUDENTS, validStudents);
+      } catch (error) {
+        console.error('Failed to set students:', error);
       }
     },
 
