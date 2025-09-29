@@ -37,7 +37,6 @@ function Students() {
   const [payrollResults, setPayrollResults] = useState<PayrollResult[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [selectedStudentForActions, setSelectedStudentForActions] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
 
   // 외부 클릭시 드롭다운 닫기
   useEffect(() => {
@@ -72,9 +71,19 @@ function Students() {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<StudentFormData>();
 
   // Debug: Log data whenever component renders
-  console.log('[DEBUG] Students component render - students:', students?.length, 'jobs:', jobs?.length);
-  console.log('[DEBUG] Students with jobId:', students?.filter(s => s.jobId)?.map(s => ({ name: s.name, jobId: s.jobId })));
-  console.log('[DEBUG] Jobs available:', jobs?.map(j => ({ id: j.id, title: j.title })));
+  useEffect(() => {
+    console.log('[DEBUG] Students component render - students:', students?.length, 'jobs:', jobs?.length);
+    console.log('[DEBUG] Students with jobId:', students?.filter(s => s.jobId)?.map(s => ({ name: s.name, jobId: s.jobId })));
+    console.log('[DEBUG] Jobs available:', jobs?.map(j => ({ id: j.id, title: j.title })));
+
+    // 직업이 있는 학생들의 직업 매칭 확인
+    students?.forEach(student => {
+      if (student.jobId) {
+        const job = jobs.find(j => j.id === student.jobId);
+        console.log(`[DEBUG] Student ${student.name} has jobId ${student.jobId}, matched job:`, job ? job.title : 'NOT FOUND');
+      }
+    });
+  }, [students, jobs]);
 
   // 급여 계산 함수
   const calculatePayroll = (student: any) => {
@@ -234,18 +243,14 @@ function Students() {
   };
 
   const getJobTitle = (jobId: string | undefined) => {
-    console.log(`[DEBUG] getJobTitle called with jobId:`, jobId);
     if (!jobId) {
-      console.log(`[DEBUG] No jobId provided, returning '직업 없음'`);
       return '직업 없음';
     }
-    console.log(`[DEBUG] Looking for job in jobs array:`, jobs.map(j => ({ id: j.id, title: j.title })));
     const job = jobs.find(j => j.id === jobId);
     if (!job) {
-      console.warn(`[DEBUG] Job not found for jobId: ${jobId}, available jobs:`, jobs.map(j => ({ id: j.id, title: j.title })));
+      console.warn(`[DEBUG] Job not found for jobId: ${jobId}. Jobs array has ${jobs.length} jobs.`);
       return '직업 없음';
     }
-    console.log(`[DEBUG] Found job:`, job.title);
     return job.title;
   };
 
@@ -274,7 +279,7 @@ function Students() {
         {/* 헤더 및 통계 */}
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">학생 관리</h1>
+            <h1 className="text-2xl font-bold text-gray-900">학생 관리</h1>
             <p className="mt-1 text-sm text-gray-500">
               {currentClass.name} 학급 대시보드
             </p>
@@ -285,12 +290,18 @@ function Students() {
               disabled={studentsWithJobs.length === 0}
               className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
-              💰 일괄 급여 지급
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              일괄 급여 지급
             </button>
             <button
               onClick={() => setIsCreating(true)}
               className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-sky-600 hover:bg-sky-700"
             >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
               새 학생 추가
             </button>
           </div>
@@ -302,7 +313,11 @@ function Students() {
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <span className="text-2xl">👥</span>
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </div>
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
@@ -318,7 +333,11 @@ function Students() {
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <span className="text-2xl">💼</span>
+                  <div className="p-3 bg-green-50 rounded-lg">
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
@@ -334,12 +353,16 @@ function Students() {
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <span className="text-2xl">💰</span>
+                  <div className="p-3 bg-amber-50 rounded-lg">
+                    <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
                     <dt className="text-sm font-medium text-gray-500 truncate">평균 잔고</dt>
-                    <dd className="text-2xl font-bold text-blue-600">
+                    <dd className="text-2xl font-bold text-amber-600">
                       {students.length > 0
                         ? Math.round(students.reduce((sum, s) => sum + s.balance, 0) / students.length).toLocaleString()
                         : 0
@@ -355,7 +378,11 @@ function Students() {
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <span className="text-2xl">🏆</span>
+                  <div className="p-3 bg-purple-50 rounded-lg">
+                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
                 </div>
                 <div className="ml-5 w-0 flex-1">
                   <dl>
@@ -373,34 +400,29 @@ function Students() {
           </div>
         </div>
 
-        {/* 보기 모드 토글 */}
-        <div className="flex justify-end items-center">
+        {/* 검색 및 필터 */}
+        <div className="flex justify-between items-center">
           <div className="flex items-center space-x-4">
-            <span className="text-sm font-medium text-gray-700">보기 모드:</span>
-            <div className="flex rounded-lg border border-gray-300 overflow-hidden">
-              <button
-                onClick={() => setViewMode('list')}
-                className={`px-4 py-2 text-sm font-medium transition-colors ${
-                  viewMode === 'list'
-                    ? 'bg-sky-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                📄 목록 보기
-              </button>
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`px-4 py-2 text-sm font-medium transition-colors border-l border-gray-300 ${
-                  viewMode === 'grid'
-                    ? 'bg-sky-600 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                📋 카드 보기
-              </button>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="학생 이름 검색..."
+                className="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+              />
+              <svg className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
             </div>
+            <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent">
+              <option value="">모든 직업</option>
+              {jobs.map(job => (
+                <option key={job.id} value={job.id}>{job.title}</option>
+              ))}
+            </select>
           </div>
-          {/* 필터링 옵션 추가 예정 */}
+          <div className="text-sm text-gray-500">
+            총 {students.length}명
+          </div>
         </div>
       </div>
 
@@ -757,18 +779,11 @@ function Students() {
               {/* 카드 헤더 */}
               <div className="bg-gray-100 p-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center border-2 border-gray-300">
-                      <span className="text-lg font-bold text-gray-700">
-                        {student.name.charAt(0)}
-                      </span>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-gray-900">{student.name}</h3>
-                      <p className="text-sm text-gray-600">
-                        PIN: {student.pin4 || '****'}
-                      </p>
-                    </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">{student.name}</h3>
+                    <p className="text-sm text-gray-600">
+                      PIN: {student.pin4 || '****'}
+                    </p>
                   </div>
                   <div className="relative">
                     <button
@@ -778,83 +793,71 @@ function Students() {
                       <span className="text-gray-600">⚙️</span>
                     </button>
                     {selectedStudentForActions === student.id && (
-                      <div className="absolute right-0 top-12 bg-white shadow-lg border rounded-lg p-2 z-20 min-w-52">
+                      <div className="absolute right-0 top-12 bg-white shadow-lg border rounded-lg p-2 z-20 min-w-48">
                         <div className="space-y-1">
-                          <div className="text-xs text-gray-500 px-2 py-1 border-b">학생 관리</div>
                           <button
                             onClick={() => {
                               navigate(`/portfolio/${student.id}`);
                               setSelectedStudentForActions(null);
                             }}
-                            className="w-full text-xs px-3 py-2 bg-indigo-50 text-indigo-800 rounded-md hover:bg-indigo-100 text-left transition-colors"
+                            className="w-full text-xs px-3 py-2 text-gray-700 hover:bg-gray-50 text-left transition-colors rounded-md flex items-center"
                           >
-                            📊 포트폴리오 보기
+                            <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                            포트폴리오 보기
                           </button>
-                          <button
-                            onClick={() => {
-                              viewIndividualPayslip(student);
-                              setSelectedStudentForActions(null);
-                            }}
-                            className="w-full text-xs px-3 py-2 bg-blue-50 text-blue-800 rounded-md hover:bg-blue-100 text-left transition-colors"
-                          >
-                            💳 급여명세서
-                          </button>
-                          <div className="text-xs text-gray-500 px-2 py-1 border-b border-t mt-2">신용 관리</div>
-                          <button
-                            onClick={() => {
-                              addLateRecord(student.id);
-                              setSelectedStudentForActions(null);
-                            }}
-                            className="w-full text-xs px-3 py-2 bg-orange-50 text-orange-800 rounded-md hover:bg-orange-100 text-left transition-colors"
-                          >
-                            📝 지각 기록 (-10점)
-                          </button>
-                          <button
-                            onClick={() => {
-                              addHomeworkMissed(student.id);
-                              setSelectedStudentForActions(null);
-                            }}
-                            className="w-full text-xs px-3 py-2 bg-red-50 text-red-800 rounded-md hover:bg-red-100 text-left transition-colors"
-                          >
-                            📚 숙제 미제출 (-15점)
-                          </button>
-                          <button
-                            onClick={() => {
-                              addBookOverdue(student.id);
-                              setSelectedStudentForActions(null);
-                            }}
-                            className="w-full text-xs px-3 py-2 bg-purple-50 text-purple-800 rounded-md hover:bg-purple-100 text-left transition-colors"
-                          >
-                            📖 도서 연체 (-20점)
-                          </button>
-                          <div className="text-xs text-gray-500 px-2 py-1 border-b border-t mt-2">잔액 조정</div>
+                          {student.jobId && (
+                            <button
+                              onClick={() => {
+                                viewIndividualPayslip(student);
+                                setSelectedStudentForActions(null);
+                              }}
+                              className="w-full text-xs px-3 py-2 text-gray-700 hover:bg-gray-50 text-left transition-colors rounded-md flex items-center"
+                            >
+                              <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              급여명세서
+                            </button>
+                          )}
+                          <div className="border-t my-1"></div>
                           <button
                             onClick={() => {
                               handleBalanceAdjustment(student, 1000);
                               setSelectedStudentForActions(null);
                             }}
-                            className="w-full text-xs px-3 py-2 bg-green-50 text-green-800 rounded-md hover:bg-green-100 text-left transition-colors"
+                            className="w-full text-xs px-3 py-2 text-gray-700 hover:bg-gray-50 text-left transition-colors rounded-md flex items-center"
                           >
-                            💰 +1,000{currentClass.currencyUnit}
+                            <svg className="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            보너스 +1,000
                           </button>
                           <button
                             onClick={() => {
                               handleBalanceAdjustment(student, -1000);
                               setSelectedStudentForActions(null);
                             }}
-                            className="w-full text-xs px-3 py-2 bg-red-50 text-red-800 rounded-md hover:bg-red-100 text-left transition-colors"
+                            className="w-full text-xs px-3 py-2 text-gray-700 hover:bg-gray-50 text-left transition-colors rounded-md flex items-center"
                           >
-                            💸 -1,000{currentClass.currencyUnit}
+                            <svg className="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            벌금 -1,000
                           </button>
-                          <div className="text-xs text-gray-500 px-2 py-1 border-b border-t mt-2">위험 작업</div>
+                          <div className="border-t my-1"></div>
                           <button
                             onClick={() => {
                               handleDelete(student.id);
                               setSelectedStudentForActions(null);
                             }}
-                            className="w-full text-xs px-3 py-2 bg-red-50 text-red-800 rounded-md hover:bg-red-100 text-left transition-colors"
+                            className="w-full text-xs px-3 py-2 text-red-600 hover:bg-red-50 text-left transition-colors rounded-md flex items-center"
                           >
-                            🗑️ 학생 삭제
+                            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            학생 삭제
                           </button>
                         </div>
                       </div>
@@ -870,18 +873,18 @@ function Students() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-600">잔고</span>
                     <span className="text-lg font-bold text-green-600">
-                      💰 {student.balance.toLocaleString()}{currentClass.currencyUnit}
+                      {student.balance.toLocaleString()}{currentClass.currencyUnit}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-600">직업</span>
                     {student.jobId ? (
                       <span className="px-2 py-1 text-xs font-semibold rounded-lg bg-blue-100 text-blue-800">
-                        💼 {getJobTitle(student.jobId)}
+                        {getJobTitle(student.jobId) === '직업 없음' ? `ID: ${student.jobId.substring(0, 8)}...` : getJobTitle(student.jobId)}
                       </span>
                     ) : (
                       <span className="px-2 py-1 text-xs font-medium rounded-lg bg-gray-100 text-gray-600">
-                        💤 무직
+                        무직
                       </span>
                     )}
                   </div>
@@ -897,7 +900,7 @@ function Students() {
                       student.creditGrade === 'C+' || student.creditGrade === 'C' ? 'bg-yellow-100 text-yellow-800' :
                       'bg-red-100 text-red-800'
                     }`}>
-                      🏆 {student.creditGrade || 'B'}
+                      {student.creditGrade || 'B'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -909,40 +912,24 @@ function Students() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">예금이자</span>
                     <span className="text-sm font-semibold text-green-600">
-                      💳 {(getInterestRate(student.creditScore || 650) * 100).toFixed(1)}%
+                      {(getInterestRate(student.creditScore || 650) * 100).toFixed(1)}%
                     </span>
                   </div>
                 </div>
 
-                {/* 행동 기록 */}
-                <div className="grid grid-cols-3 gap-2 text-xs">
-                  <div className="text-center p-2 bg-orange-50 rounded-lg">
-                    <div className="text-orange-800 font-semibold">⏰ {student.lateCount || 0}</div>
-                    <div className="text-orange-600">지각</div>
-                  </div>
-                  <div className="text-center p-2 bg-red-50 rounded-lg">
-                    <div className="text-red-800 font-semibold">📚 {student.homeworkMissed || 0}</div>
-                    <div className="text-red-600">숙제미제출</div>
-                  </div>
-                  <div className="text-center p-2 bg-purple-50 rounded-lg">
-                    <div className="text-purple-800 font-semibold">📖 {student.bookOverdue || 0}</div>
-                    <div className="text-purple-600">도서연체</div>
-                  </div>
-                </div>
 
                 {/* 업적 */}
                 {student.achievements && student.achievements.length > 0 && (
-                  <div>
-                    <div className="text-sm font-medium text-gray-600 mb-2">업적</div>
+                  <div className="pt-2 border-t border-gray-200">
                     <div className="flex flex-wrap gap-1">
                       {student.achievements.slice(0, 2).map((achievement, index) => (
-                        <span key={index} className="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-yellow-100 text-yellow-800">
-                          🏆 {achievement}
+                        <span key={index} className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-yellow-50 text-yellow-700 border border-yellow-200">
+                          {achievement}
                         </span>
                       ))}
                       {student.achievements.length > 2 && (
                         <span className="text-xs text-gray-500">
-                          +{student.achievements.length - 2}개
+                          +{student.achievements.length - 2}
                         </span>
                       )}
                     </div>
@@ -956,14 +943,20 @@ function Students() {
                       onClick={() => viewIndividualPayslip(student)}
                       className="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                     >
-                      💰 명세서
+                      <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      명세서
                     </button>
                   )}
                   <button
                     onClick={() => handleEdit(student)}
                     className="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    ✏️ 수정
+                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    수정
                   </button>
                 </div>
               </div>
@@ -988,13 +981,6 @@ function Students() {
                 <div className="px-6 py-5 sm:px-8 bg-white hover:bg-gray-50 transition-colors duration-150">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start">
-                      <div className="flex-shrink-0 mr-4">
-                        <div className="h-14 w-14 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
-                          <span className="text-lg font-bold text-gray-600">
-                            {student.name.charAt(0)}
-                          </span>
-                        </div>
-                      </div>
                       <div className="flex-1">
                         <div className="flex items-center">
                           <div className="text-lg font-semibold text-gray-900">
@@ -1002,55 +988,44 @@ function Students() {
                           </div>
                           <div className="ml-3 flex items-center space-x-2">
                             <span className="px-3 py-1 text-sm font-bold rounded-lg bg-green-100 text-green-800">
-                              💰 {student.balance.toLocaleString()}{currentClass.currencyUnit}
+                              {student.balance.toLocaleString()}{currentClass.currencyUnit}
                             </span>
                             {student.jobId ? (
                               <span className="px-3 py-1 text-sm font-semibold rounded-lg bg-blue-100 text-blue-800">
-                                💼 {getJobTitle(student.jobId)}
+                                {getJobTitle(student.jobId) === '직업 없음' ? `ID: ${student.jobId.substring(0, 8)}...` : getJobTitle(student.jobId)}
                               </span>
                             ) : (
                               <span className="px-3 py-1 text-sm font-medium rounded-lg bg-gray-100 text-gray-600">
-                                💤 무직
+                                무직
                               </span>
                             )}
                           </div>
                         </div>
 
-                        {/* 신용등급 및 행동 기록 */}
-                        <div className="mt-3 bg-gray-50 rounded-lg p-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                              <div className="flex items-center space-x-2">
-                                <span className="text-sm font-medium text-gray-700">🏆 신용등급:</span>
-                                <span className={`text-sm font-bold px-2 py-1 rounded-lg ${
-                                  student.creditGrade === 'A+' || student.creditGrade === 'A' ? 'bg-green-100 text-green-800' :
-                                  student.creditGrade === 'B+' || student.creditGrade === 'B' ? 'bg-blue-100 text-blue-800' :
-                                  student.creditGrade === 'C+' || student.creditGrade === 'C' ? 'bg-yellow-100 text-yellow-800' :
-                                  'bg-red-100 text-red-800'
-                                }`}>
-                                  {student.creditGrade || 'B'}
-                                </span>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <span className="text-sm text-gray-600">점수:</span>
-                                <span className="text-sm font-semibold text-gray-900">
-                                  {student.creditScore || 650}
-                                </span>
-                              </div>
-                              <div className="flex items-center space-x-2">
-                                <span className="text-sm text-gray-600">💳 예금이자:</span>
-                                <span className="text-sm font-semibold text-green-600">
-                                  {(getInterestRate(student.creditScore || 650) * 100).toFixed(1)}%
-                                </span>
-                              </div>
-                            </div>
+                        {/* 신용등급 */}
+                        <div className="mt-3 flex items-center space-x-4">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm font-medium text-gray-700">신용등급:</span>
+                            <span className={`text-sm font-bold px-2 py-1 rounded-lg ${
+                              student.creditGrade === 'A+' || student.creditGrade === 'A' ? 'bg-green-100 text-green-800' :
+                              student.creditGrade === 'B+' || student.creditGrade === 'B' ? 'bg-blue-100 text-blue-800' :
+                              student.creditGrade === 'C+' || student.creditGrade === 'C' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {student.creditGrade || 'B'}
+                            </span>
                           </div>
-
-                          {/* 행동 기록 */}
-                          <div className="flex items-center space-x-6 mt-2 text-sm text-gray-600">
-                            <span>⏰ 지각: <strong>{student.lateCount || 0}회</strong></span>
-                            <span>📚 숙제미제출: <strong>{student.homeworkMissed || 0}회</strong></span>
-                            <span>📖 도서연체: <strong>{student.bookOverdue || 0}회</strong></span>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-600">점수:</span>
+                            <span className="text-sm font-semibold text-gray-900">
+                              {student.creditScore || 650}
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-600">예금이자:</span>
+                            <span className="text-sm font-semibold text-green-600">
+                              {(getInterestRate(student.creditScore || 650) * 100).toFixed(1)}%
+                            </span>
                           </div>
                         </div>
 
@@ -1059,13 +1034,13 @@ function Students() {
                           <div className="mt-2">
                             <div className="flex flex-wrap gap-1">
                               {student.achievements.slice(0, 3).map((achievement, index) => (
-                                <span key={index} className="inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium bg-yellow-100 text-yellow-800">
-                                  🏆 {achievement}
+                                <span key={index} className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-yellow-50 text-yellow-700 border border-yellow-200">
+                                  {achievement}
                                 </span>
                               ))}
                               {student.achievements.length > 3 && (
                                 <span className="text-xs text-gray-500">
-                                  +{student.achievements.length - 3}개 더
+                                  +{student.achievements.length - 3}
                                 </span>
                               )}
                             </div>
@@ -1080,7 +1055,10 @@ function Students() {
                           onClick={() => viewIndividualPayslip(student)}
                           className="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
                         >
-                          💰 급여명세서
+                          <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          급여명세서
                         </button>
                       )}
 
@@ -1089,7 +1067,10 @@ function Students() {
                         onClick={() => handleEdit(student)}
                         className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                       >
-                        ✏️ 수정
+                        <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        수정
                       </button>
 
                       {/* 관리 드롭다운 메뉴 */}
@@ -1098,16 +1079,17 @@ function Students() {
                           onClick={() => setSelectedStudentForActions(selectedStudentForActions === student.id ? null : student.id)}
                           className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                         >
-                          ⚙️ 관리
+                          <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                          </svg>
+                          더보기
                           <svg className={`ml-1 w-4 h-4 transition-transform ${selectedStudentForActions === student.id ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                           </svg>
                         </button>
 
                         {selectedStudentForActions === student.id && (
-                          <div className="absolute right-0 top-10 bg-white shadow-lg border border-gray-200 rounded-lg py-2 z-20 w-56">
-                            {/* 학생 관리 섹션 */}
-                            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">학생 관리</div>
+                          <div className="absolute right-0 top-10 bg-white shadow-lg border border-gray-200 rounded-lg py-2 z-20 w-48">
                             <button
                               onClick={() => {
                                 navigate(`/portfolio/${student.id}`);
@@ -1115,89 +1097,63 @@ function Students() {
                               }}
                               className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
                             >
-                              <span>📊 포트폴리오 보기</span>
+                              <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                              </svg>
+                              포트폴리오 보기
                             </button>
+                            {student.jobId && (
+                              <button
+                                onClick={() => {
+                                  viewIndividualPayslip(student);
+                                  setSelectedStudentForActions(null);
+                                }}
+                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                              >
+                                <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                급여명세서
+                              </button>
+                            )}
+                            <div className="border-t my-1"></div>
                             <button
                               onClick={() => {
-                                viewIndividualPayslip(student);
+                                handleBalanceAdjustment(student, 1000);
                                 setSelectedStudentForActions(null);
                               }}
                               className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
                             >
-                              <span>💳 급여명세서</span>
-                            </button>
-
-                            {/* 신용 관리 섹션 */}
-                            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider border-t mt-1">신용 관리</div>
-                            <button
-                              onClick={() => {
-                                addLateRecord(student.id);
-                                setSelectedStudentForActions(null);
-                              }}
-                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between"
-                            >
-                              <span>⏰ 지각 기록</span>
-                              <span className="text-xs text-orange-600">-10점</span>
+                              <svg className="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              보너스 +1,000
                             </button>
                             <button
                               onClick={() => {
-                                addHomeworkMissed(student.id);
+                                handleBalanceAdjustment(student, -1000);
                                 setSelectedStudentForActions(null);
                               }}
-                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between"
+                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
                             >
-                              <span>📚 숙제 미제출</span>
-                              <span className="text-xs text-red-600">-15점</span>
+                              <svg className="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              벌금 -1,000
                             </button>
+                            <div className="border-t my-1"></div>
                             <button
                               onClick={() => {
-                                addBookOverdue(student.id);
+                                handleDelete(student.id);
                                 setSelectedStudentForActions(null);
                               }}
-                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between"
+                              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
                             >
-                              <span>📖 도서 연체</span>
-                              <span className="text-xs text-purple-600">-20점</span>
+                              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                              학생 삭제
                             </button>
-
-
-                            {/* 잔액 조정 섹션 */}
-                            <div className="border-t mt-2 pt-2">
-                              <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">잔액 조정</div>
-                              <button
-                                onClick={() => {
-                                  handleBalanceAdjustment(student, 1000);
-                                  setSelectedStudentForActions(null);
-                                }}
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between"
-                              >
-                                <span>💰 보너스 지급</span>
-                                <span className="text-xs text-green-600">+1,000</span>
-                              </button>
-                              <button
-                                onClick={() => {
-                                  handleBalanceAdjustment(student, -1000);
-                                  setSelectedStudentForActions(null);
-                                }}
-                                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center justify-between"
-                              >
-                                <span>💸 벌금 부과</span>
-                                <span className="text-xs text-red-600">-1,000</span>
-                              </button>
-                            </div>
-
-                            {/* 삭제 섹션 */}
-                            <div className="border-t mt-2 pt-2">
-                              <button
-                                onClick={() => {
-                                  handleDelete(student.id);
-                                  setSelectedStudentForActions(null);
-                                }}
-                                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center"
-                              >
-                                🗑️ 학생 삭제
-                              </button>
-                            </div>
                           </div>
                         )}
                       </div>

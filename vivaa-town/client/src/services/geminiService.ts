@@ -84,7 +84,7 @@ class GeminiService {
     if (!this.model) {
       const genAI = getGenAI();
       this.model = genAI.getGenerativeModel({
-        model: 'gemini-1.5-flash',
+        model: 'gemini-2.0-flash-001',
         generationConfig: {
           temperature: 0.3,
           topP: 0.8,

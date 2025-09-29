@@ -4,7 +4,7 @@ import SidebarLayout from './components/SidebarLayout';
 import { NotificationProvider } from './components/NotificationSystem';
 import Home from './pages/Home';
 import Classes from './pages/Classes';
-import Students from './pages/Students';
+import StudentsTable from './pages/StudentsTable';
 import Jobs from './pages/Jobs';
 import Transactions from './pages/Transactions';
 import Items from './pages/Items';
@@ -33,7 +33,7 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/classes" element={<Classes />} />
-        <Route path="/students" element={<Students />} />
+        <Route path="/students" element={<StudentsTable />} />
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/items" element={<Items />} />

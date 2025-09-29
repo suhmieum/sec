@@ -1,7 +1,8 @@
-# 비바타운 (VivaTown) - SEC 기반 학급 경제 플랫폼
+# 비바빌리지 (Viva Village) - SEC 기반 학급 경제 플랫폼
 
 SEC(Small Economy in the Classroom) 프로그램 기반 초등 학급 경제 운영 웹 플랫폼입니다.
-목업용으로 간단히 만들어서 실제 제대로 작동하지는 않습니다.
+
+🌐 **실제 웹사이트**: https://suhmieum.github.io/sec
 
 ## 🎯 프로젝트 개요
 

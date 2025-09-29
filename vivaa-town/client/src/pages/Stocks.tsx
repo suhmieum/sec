@@ -1,7 +1,33 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import CountUp from 'react-countup';
 import { useStockStore, useMarketStore, useCurrentClassroom, useCurrentStudents } from '../state';
 import type { Stock, Student } from '../schemas';
 import StockChart from '../components/StockChart';
+import CandleChart from '../components/CandleChart';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 export default function Stocks() {
   const currentClassroom = useCurrentClassroom();
@@ -38,9 +64,8 @@ export default function Stocks() {
   const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [tradeType, setTradeType] = useState<'buy' | 'sell'>('buy');
   const [tradeQuantity, setTradeQuantity] = useState(1);
-  const [selectedStockForChart, setSelectedStockForChart] = useState<Stock | null>(null);
-
   const classroomStocks = currentClassroom ? getStocksByClassroom(currentClassroom.id) : [];
+  const [selectedStockForChart, setSelectedStockForChart] = useState<Stock | null>(classroomStocks[0] || null);
   const studentPortfolio = selectedStudent ? getPortfolioByStudent(selectedStudent.id) : [];
   const studentTransactions = selectedStudent ? getTransactionsByStudent(selectedStudent.id) : [];
   const portfolioValue = selectedStudent ? calculatePortfolioValue(selectedStudent.id) : 0;
@@ -48,6 +73,13 @@ export default function Stocks() {
   const marketMood = currentClassroom ? getMarketMood(currentClassroom.id) : 'neutral';
   const activeNews = currentClassroom ? getActiveNews(currentClassroom.id) : [];
   const todayIndicators = currentClassroom ? getTodayIndicators(currentClassroom.id) : null;
+
+  // 첫 번째 종목 자동 선택
+  useEffect(() => {
+    if (classroomStocks.length > 0 && !selectedStockForChart) {
+      setSelectedStockForChart(classroomStocks[0]);
+    }
+  }, [classroomStocks]);
 
   // 초기 일일 지표 생성 및 뉴스 생성
   useEffect(() => {
@@ -138,9 +170,24 @@ export default function Stocks() {
     switch (sector) {
       case '환경': return '🌱';
       case '교육': return '📚';
-      case '기술': return '💻';
-      case '식품': return '🍎';
+      case '건강': return '🏋️';
       default: return '🏢';
+    }
+  };
+
+  // 종목별 주가 변동 요인 설명
+  const getStockDescription = (stockName: string): string => {
+    switch (stockName) {
+      case '미세먼지 농도':
+        return '미세먼지 농도가 높을수록 주가 상승';
+      case '오늘 기온':
+        return '기온이 적절할수록 주가 상승';
+      case '선생님 몸무게':
+        return '선생님이 직접 조정하는 주식';
+      case '비상교육':
+        return '실제 비상교육 주가와 연동';
+      default:
+        return '';
     }
   };
 
@@ -181,45 +228,260 @@ export default function Stocks() {
         </div>
       </div>
 
+      {/* 상단 통계 카드 */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-500">총 시가총액</span>
+            <span className="text-2xl">💰</span>
+          </div>
+          <div className="text-2xl font-bold text-gray-900">
+            <CountUp
+              end={classroomStocks.reduce((sum, s) => sum + s.currentPrice * s.totalShares, 0)}
+              duration={2}
+              separator=","
+            />
+            <span className="text-lg font-normal text-gray-600 ml-1">원</span>
+          </div>
+          <div className="text-xs text-green-600 mt-2">▲ 5.2% 오늘</div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-500">상장 종목</span>
+            <span className="text-2xl">📈</span>
+          </div>
+          <div className="text-2xl font-bold text-gray-900">
+            <CountUp end={classroomStocks.length} duration={2} />
+            <span className="text-lg font-normal text-gray-600 ml-1">개</span>
+          </div>
+          <div className="text-xs text-blue-600 mt-2">{classroomStocks.filter(s => s.currentPrice > s.previousPrice).length}개 상승중</div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-500">거래량</span>
+            <span className="text-2xl">📊</span>
+          </div>
+          <div className="text-2xl font-bold text-gray-900">
+            <CountUp end={stockTransactions.length} duration={2} />
+            <span className="text-lg font-normal text-gray-600 ml-1">건</span>
+          </div>
+          <div className="text-xs text-purple-600 mt-2">오늘 {stockTransactions.filter(t => new Date(t.timestamp).toDateString() === new Date().toDateString()).length}건</div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-500">시장 분위기</span>
+            <span className="text-2xl">{getMoodIcon(marketMood)}</span>
+          </div>
+          <div className="text-2xl font-bold text-gray-900">
+            {marketMood === 'bullish' ? '상승세' : marketMood === 'bearish' ? '하락세' : '보합세'}
+          </div>
+          <div className="text-xs text-gray-500 mt-2">투자자 {students.filter(s => stockPortfolios.some(p => p.studentId === s.id)).length}명 참여</div>
+        </motion.div>
+      </div>
+
+      {/* 종목 현황 - 상단으로 이동 */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-2xl shadow-lg border border-gray-100"
+      >
+        <div className="p-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold">종목 현황</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">종목</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">현재가</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">등락</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">섹터</th>
+                {selectedStudent && <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">보유수량</th>}
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">액션</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {classroomStocks.map(stock => {
+                const priceChange = stock.currentPrice - stock.previousPrice;
+                const priceChangePercent = stock.previousPrice > 0 ? (priceChange / stock.previousPrice * 100) : 0;
+                const studentQuantity = selectedStudent ? getStudentStockQuantity(selectedStudent.id, stock.id) : 0;
+                const isSelected = selectedStockForChart?.id === stock.id;
+
+                return (
+                  <tr
+                    key={stock.id}
+                    className={`hover:bg-gray-50 cursor-pointer ${isSelected ? 'bg-blue-50' : ''}`}
+                    onClick={() => setSelectedStockForChart(stock)}
+                  >
+                    <td className="px-4 py-3">
+                      <div>
+                        <div className="font-medium text-gray-900">{stock.name}</div>
+                        <div className="text-sm text-gray-500">{stock.symbol}</div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="font-medium">{stock.currentPrice.toLocaleString()}원</div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className={`font-medium ${getPriceChangeColor(stock.currentPrice, stock.previousPrice)}`}>
+                        {priceChange > 0 ? '+' : ''}{priceChange.toLocaleString()}원
+                        <div className="text-xs">
+                          ({priceChangePercent > 0 ? '+' : ''}{priceChangePercent.toFixed(2)}%)
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
+                        {getSectorIcon(stock.sector)} {stock.sector}
+                      </span>
+                    </td>
+                    {selectedStudent && (
+                      <td className="px-4 py-3">
+                        <div className="font-medium">{studentQuantity.toLocaleString()}주</div>
+                        {studentQuantity > 0 && (
+                          <div className="text-xs text-gray-500">
+                            손익: {calculateProfitLoss(selectedStudent.id, stock.id).toLocaleString()}원
+                          </div>
+                        )}
+                      </td>
+                    )}
+                    <td className="px-4 py-3">
+                      <div className="flex gap-2" onClick={e => e.stopPropagation()}>
+                        {selectedStudent && (
+                          <>
+                            <button
+                              onClick={() => {
+                                setSelectedStock(stock);
+                                setTradeType('buy');
+                                setShowTradeModal(true);
+                              }}
+                              className="px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
+                            >
+                              매수
+                            </button>
+                            {studentQuantity > 0 && (
+                              <button
+                                onClick={() => {
+                                  setSelectedStock(stock);
+                                  setTradeType('sell');
+                                  setShowTradeModal(true);
+                                }}
+                                className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
+                              >
+                                매도
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
+
+      {/* 선택된 주식 차트 */}
+      {selectedStockForChart && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white rounded-2xl shadow-lg border border-gray-100"
+        >
+          <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+            <div>
+              <h2 className="text-lg font-semibold">{selectedStockForChart.name} 차트</h2>
+              <p className="text-xs text-gray-500 mt-1">{getStockDescription(selectedStockForChart.name)}</p>
+            </div>
+          </div>
+          <div className="p-4">
+            <CandleChart
+              stock={selectedStockForChart}
+              priceHistory={getStockPriceHistory(selectedStockForChart.id)}
+            />
+          </div>
+        </motion.div>
+      )}
+
       {/* 시장 뉴스 및 오늘의 지표 */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* 오늘의 지표 */}
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <h2 className="text-lg font-semibold mb-3">📊 오늘의 시장 지표</h2>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white rounded-2xl shadow-lg border border-gray-100 p-5"
+        >
+          <h2 className="text-lg font-semibold mb-3">📊 실시간 지표</h2>
           {todayIndicators ? (
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="bg-blue-50 p-2 rounded">
-                <div className="text-blue-600 font-medium">🌫️ 미세먼지</div>
-                <div className="text-lg font-bold">{todayIndicators.indicators.fineDust}㎍/㎥</div>
+            <div className="grid grid-cols-1 gap-3 text-sm">
+              <div className="bg-blue-50 p-3 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="text-blue-600 font-medium">🌫️ 미세먼지</span>
+                  <span className="text-lg font-bold">{todayIndicators.indicators.fineDust}㎍/㎥</span>
+                </div>
+                <div className="text-xs text-blue-500 mt-1">
+                  {todayIndicators.indicators.fineDust > 50 ? '↑ 높음' : todayIndicators.indicators.fineDust > 30 ? '→ 보통' : '↓ 좋음'}
+                </div>
               </div>
-              <div className="bg-green-50 p-2 rounded">
-                <div className="text-green-600 font-medium">🌡️ 기온</div>
-                <div className="text-lg font-bold">{todayIndicators.indicators.temperature}°C</div>
+              <div className="bg-green-50 p-3 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="text-green-600 font-medium">🌡️ 기온</span>
+                  <span className="text-lg font-bold">{todayIndicators.indicators.temperature}°C</span>
+                </div>
+                <div className="text-xs text-green-500 mt-1">
+                  {todayIndicators.indicators.temperature > 25 ? '↑ 더움' : todayIndicators.indicators.temperature > 15 ? '→ 적절' : '↓ 추움'}
+                </div>
               </div>
-              <div className="bg-yellow-50 p-2 rounded">
-                <div className="text-yellow-600 font-medium">😊 선생님 기분</div>
-                <div className="text-lg font-bold">{todayIndicators.indicators.teacherMood}/10</div>
+              <div className="bg-purple-50 p-3 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="text-purple-600 font-medium">⚖️ 선생님 몸무게</span>
+                  <span className="text-lg font-bold">72.5kg</span>
+                </div>
+                <div className="text-xs text-purple-500 mt-1">↑ 전주 대비 +0.5kg</div>
               </div>
-              <div className="bg-purple-50 p-2 rounded">
-                <div className="text-purple-600 font-medium">📚 출석률</div>
-                <div className="text-lg font-bold">{todayIndicators.indicators.studentAttendance}%</div>
-              </div>
-              <div className="bg-orange-50 p-2 rounded">
-                <div className="text-orange-600 font-medium">🍎 급식평점</div>
-                <div className="text-lg font-bold">{todayIndicators.indicators.lunchMenuRating}/5</div>
-              </div>
-              <div className="bg-red-50 p-2 rounded">
-                <div className="text-red-600 font-medium">😰 시험스트레스</div>
-                <div className="text-lg font-bold">{todayIndicators.indicators.examStress}/10</div>
+              <div className="bg-orange-50 p-3 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="text-orange-600 font-medium">🏫 비상교육 주가</span>
+                  <span className="text-lg font-bold">6,000원</span>
+                </div>
+                <div className="text-xs text-orange-500 mt-1">→ 보합세</div>
               </div>
             </div>
           ) : (
             <p className="text-gray-500">지표를 불러오는 중...</p>
           )}
-        </div>
+        </motion.div>
 
         {/* 시장 뉴스 */}
-        <div className="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          className="lg:col-span-2 bg-white rounded-2xl shadow-lg border border-gray-100 p-5">
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-lg font-semibold">📰 시장 뉴스</h2>
             <button
@@ -261,11 +523,14 @@ export default function Stocks() {
           ) : (
             <p className="text-gray-500">오늘은 시장 뉴스가 없습니다.</p>
           )}
-        </div>
+        </motion.div>
       </div>
 
       {/* 학생 선택 */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-2xl shadow-lg border border-gray-100 p-5">
         <h2 className="text-lg font-semibold mb-3">학생 선택</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
           {students.map(student => (
@@ -283,131 +548,8 @@ export default function Stocks() {
             </button>
           ))}
         </div>
-      </div>
+      </motion.div>
 
-      {/* 주식 목록 */}
-      <div className="bg-white rounded-lg border border-gray-200">
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold">종목 현황</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">종목</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">현재가</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">등락</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">섹터</th>
-                {selectedStudent && <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">보유수량</th>}
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">액션</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {classroomStocks.map(stock => {
-                const priceChange = stock.currentPrice - stock.previousPrice;
-                const priceChangePercent = stock.previousPrice > 0 ? (priceChange / stock.previousPrice * 100) : 0;
-                const studentQuantity = selectedStudent ? getStudentStockQuantity(selectedStudent.id, stock.id) : 0;
-
-                return (
-                  <tr key={stock.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <div>
-                        <div className="font-medium text-gray-900">{stock.name}</div>
-                        <div className="text-sm text-gray-500">{stock.symbol}</div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="font-medium">{stock.currentPrice.toLocaleString()}원</div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className={`font-medium ${getPriceChangeColor(stock.currentPrice, stock.previousPrice)}`}>
-                        {priceChange > 0 ? '+' : ''}{priceChange.toLocaleString()}원
-                        <div className="text-xs">
-                          ({priceChangePercent > 0 ? '+' : ''}{priceChangePercent.toFixed(2)}%)
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">
-                        {getSectorIcon(stock.sector)} {stock.sector}
-                      </span>
-                    </td>
-                    {selectedStudent && (
-                      <td className="px-4 py-3">
-                        <div className="font-medium">{studentQuantity.toLocaleString()}주</div>
-                        {studentQuantity > 0 && (
-                          <div className="text-xs text-gray-500">
-                            손익: {calculateProfitLoss(selectedStudent.id, stock.id).toLocaleString()}원
-                          </div>
-                        )}
-                      </td>
-                    )}
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setSelectedStockForChart(stock)}
-                          className="px-3 py-1 text-xs bg-gray-500 text-white rounded hover:bg-gray-600"
-                        >
-                          📈 차트
-                        </button>
-                        {selectedStudent && (
-                          <>
-                            <button
-                              onClick={() => {
-                                setSelectedStock(stock);
-                                setTradeType('buy');
-                                setShowTradeModal(true);
-                              }}
-                              className="px-3 py-1 text-xs bg-red-500 text-white rounded hover:bg-red-600"
-                            >
-                              매수
-                            </button>
-                            {studentQuantity > 0 && (
-                              <button
-                                onClick={() => {
-                                  setSelectedStock(stock);
-                                  setTradeType('sell');
-                                  setShowTradeModal(true);
-                                }}
-                                className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
-                              >
-                                매도
-                              </button>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* 선택된 주식 차트 */}
-      {selectedStockForChart && (
-        <div className="bg-white rounded-lg border border-gray-200">
-          <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-            <h2 className="text-lg font-semibold">{selectedStockForChart.name} 차트</h2>
-            <button
-              onClick={() => setSelectedStockForChart(null)}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              ✕
-            </button>
-          </div>
-          <div className="p-4">
-            <StockChart
-              priceHistory={getStockPriceHistory(selectedStockForChart.id)}
-              stockName={selectedStockForChart.name}
-              currentPrice={selectedStockForChart.currentPrice}
-              previousPrice={selectedStockForChart.previousPrice}
-            />
-          </div>
-        </div>
-      )}
 
       {/* 선택된 학생의 포트폴리오 */}
       {selectedStudent && (

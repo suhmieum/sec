@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import CountUp from 'react-countup';
 import { useForm } from 'react-hook-form';
 import { useCurrentClassroom } from '../state';
 
@@ -168,70 +170,79 @@ function Items() {
       </div>
 
       {/* 통계 카드 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm">💰</span>
-                </div>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">총 재고 가치</dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {totalValue.toLocaleString()}{currentClass.currencyUnit}
-                  </dd>
-                </dl>
-              </div>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-500">총 재고 가치</span>
+            <span className="text-2xl">💰</span>
           </div>
-        </div>
+          <div className="text-2xl font-bold text-gray-900">
+            <CountUp end={totalValue} duration={2} separator="," />
+            <span className="text-lg font-normal text-gray-600 ml-1">{currentClass.currencyUnit}</span>
+          </div>
+          <div className="text-xs text-green-600 mt-2">▲ 8.5% 이번 주</div>
+        </motion.div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm">🛒</span>
-                </div>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">판매 가능</dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {availableItems.length}개
-                  </dd>
-                </dl>
-              </div>
-            </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-500">판매 가능</span>
+            <span className="text-2xl">🛒</span>
           </div>
-        </div>
+          <div className="text-2xl font-bold text-gray-900">
+            <CountUp end={availableItems.length} duration={2} />
+            <span className="text-lg font-normal text-gray-600 ml-1">개</span>
+          </div>
+          <div className="text-xs text-blue-600 mt-2">{allItems.length}개 중 판매중</div>
+        </motion.div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm">📦</span>
-                </div>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">총 재고</dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {allItems.reduce((sum, item) => sum + item.stock, 0)}개
-                  </dd>
-                </dl>
-              </div>
-            </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-500">총 재고</span>
+            <span className="text-2xl">📦</span>
           </div>
-        </div>
+          <div className="text-2xl font-bold text-gray-900">
+            <CountUp end={allItems.reduce((sum, item) => sum + item.stock, 0)} duration={2} />
+            <span className="text-lg font-normal text-gray-600 ml-1">개</span>
+          </div>
+          <div className="text-xs text-gray-500 mt-2">{allItems.length}종 아이템</div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-500">인기 카테고리</span>
+            <span className="text-2xl">🏆</span>
+          </div>
+          <div className="text-2xl font-bold text-gray-900">
+            학습 권리
+          </div>
+          <div className="text-xs text-purple-600 mt-2">▲ 32% 판매량</div>
+        </motion.div>
       </div>
 
       {isCreating && (
-        <div className="bg-white shadow sm:rounded-lg">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white shadow-lg rounded-2xl border border-gray-100">
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               {editingItem ? '아이템 수정' : '새 아이템 추가'}
@@ -338,13 +349,20 @@ function Items() {
               </div>
             </form>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* 아이템 목록 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {allItems.map((item) => (
-          <div key={item.id} className="bg-white shadow rounded-lg overflow-hidden">
+        {allItems.map((item, index) => (
+          <motion.div
+            key={item.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
+            whileHover={{ y: -4 }}
+            className="bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-100 hover:shadow-xl transition-shadow"
+          >
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center">
@@ -355,12 +373,12 @@ function Items() {
                 </div>
                 <div className="flex space-x-1">
                   {item.forSale && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
                       판매중
                     </span>
                   )}
                   {item.studentTradable && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-sky-100 text-sky-800">
                       거래가능
                     </span>
                   )}
@@ -386,14 +404,14 @@ function Items() {
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => adjustStock(item.id, -1)}
-                    className="text-xs px-2 py-1 bg-red-100 text-red-800 rounded hover:bg-red-200"
+                    className="text-xs px-2 py-1 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors"
                     disabled={item.stock === 0}
                   >
                     -1
                   </button>
                   <button
                     onClick={() => adjustStock(item.id, 1)}
-                    className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded hover:bg-green-200"
+                    className="text-xs px-2 py-1 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors"
                   >
                     +1
                   </button>
@@ -401,7 +419,7 @@ function Items() {
                 <div className="flex space-x-2">
                   <button
                     onClick={() => handleEdit(item)}
-                    className="text-indigo-600 hover:text-indigo-900 text-sm font-medium"
+                    className="text-sky-600 hover:text-sky-700 text-sm font-medium transition-colors"
                   >
                     수정
                   </button>
@@ -416,7 +434,7 @@ function Items() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
 

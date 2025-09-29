@@ -33,14 +33,10 @@ const jobTitles = [
 
 // 주식 목록
 const stockData = [
-  { name: '그린에너지', symbol: 'GE001', sector: '환경', price: 5000 },
-  { name: '에코텍', symbol: 'ECO01', sector: '환경', price: 3500 },
-  { name: '스마트북스', symbol: 'SB001', sector: '교육', price: 4000 },
-  { name: '에듀테크', symbol: 'EDU01', sector: '교육', price: 6000 },
-  { name: '테크놀로지', symbol: 'TEC01', sector: '기술', price: 8000 },
-  { name: '디지털월드', symbol: 'DW001', sector: '기술', price: 7500 },
-  { name: '맛있는급식', symbol: 'YUM01', sector: '식품', price: 3000 },
-  { name: '건강푸드', symbol: 'HF001', sector: '식품', price: 4500 }
+  { name: '미세먼지 농도', symbol: 'PM001', sector: '환경', price: 5000 },
+  { name: '오늘 기온', symbol: 'TEMP1', sector: '환경', price: 3500 },
+  { name: '선생님 몸무게', symbol: 'TEACH', sector: '건강', price: 7000 },
+  { name: '비상교육', symbol: 'VISE1', sector: '교육', price: 6000 }
 ];
 
 // 업적 목록
@@ -161,12 +157,11 @@ export function generateDemoData(classroomId: string) {
     const balance = Math.floor(Math.random() * 50000) + 10000;
     const creditScore = Math.floor(Math.random() * 300) + 550;
 
-    data.students.push({
+    const studentData: any = {
       id: studentId,
       classroomId,
       name,
       pin4: String(1000 + index).padStart(4, '0'),
-      jobId: assignedJob || undefined,
       balance,
       active: true,
       createdAt: new Date(now.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
@@ -178,7 +173,15 @@ export function generateDemoData(classroomId: string) {
       lateCount: Math.floor(Math.random() * 5),
       homeworkMissed: Math.floor(Math.random() * 3),
       bookOverdue: Math.floor(Math.random() * 2)
-    });
+    };
+
+    // jobId를 명시적으로 설정 (undefined가 아닌 경우만)
+    if (assignedJob) {
+      studentData.jobId = assignedJob;
+      console.log(`[DEBUG] Assigned job ${assignedJob} to student ${name}`);
+    }
+
+    data.students.push(studentData);
   });
 
   // 3. 주식 생성

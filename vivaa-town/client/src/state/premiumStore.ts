@@ -39,7 +39,7 @@ export const usePremiumStore = create<PremiumStore>()(
           // Gemini API 키 유효성 검증
           const { GoogleGenerativeAI } = await import('@google/generative-ai');
           const genAI = new GoogleGenerativeAI(apiKey);
-          const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+          const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-001" });
 
           // 간단한 테스트 요청으로 API 키 검증
           await model.generateContent("test");

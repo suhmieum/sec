@@ -16,12 +16,15 @@ interface JobState {
 
   // Actions
   loadJobs: () => void;
+  setJobs: (jobs: Job[]) => void; // For demo data import
   createJob: (data: {
+    id?: ID; // Optional id for demo data
     classroomId: ID;
     title: string;
     description?: string;
     salary: number;
     maxPositions: number;
+    currentPositions?: number;
   }) => Job;
   updateJob: (id: ID, data: Partial<Omit<Job, 'id'>>) => void;
   deleteJob: (id: ID) => void;
@@ -65,16 +68,28 @@ export const useJobStore = create<JobState>()(
       }
     },
 
+    // Set jobs directly (for demo data import)
+    setJobs: (jobs) => {
+      try {
+        // Validate all jobs
+        const validJobs = jobs.map(job => JobSchema.parse(job));
+        set({ jobs: validJobs });
+        storageAdapter.set(STORAGE_KEYS.JOBS, validJobs);
+      } catch (error) {
+        console.error('Failed to set jobs:', error);
+      }
+    },
+
     // Create new job
     createJob: (data) => {
       const newJob: Job = {
-        id: generateId(),
+        id: data.id || generateId(), // Use provided id if available, otherwise generate
         classroomId: data.classroomId,
         title: data.title,
         description: data.description,
         salary: data.salary,
         maxPositions: data.maxPositions,
-        currentPositions: 0,
+        currentPositions: data.currentPositions ?? 0,
       };
 
       // Validate the new job

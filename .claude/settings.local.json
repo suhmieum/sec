@@ -30,7 +30,10 @@
       "Bash(xcopy:*)",
       "WebSearch",
       "Bash(git reset:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm ls:*)",
+      "Bash(dir:*)",
+      "Bash(cp:*)"
     ],
     "deny": [],
     "ask": []
