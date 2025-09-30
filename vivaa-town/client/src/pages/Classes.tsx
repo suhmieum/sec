@@ -33,7 +33,7 @@ function Classes() {
   const { currentClassId, setCurrentClassId } = useAppStore();
   const { createStudent, getStudentsByClassroom, assignJob, diversifyCreditScores, setStudents } = useStudentStore();
   const { createJob, setJobs } = useJobStore();
-  const { createStock, addStockTransaction, createStockPortfolio } = useStockStore();
+  const { createStock, bulkCreateStocks, addStockTransaction, createStockPortfolio } = useStockStore();
   const { createSavingsAccount } = useSavingsStore();
   const { createAchievement, createStudentAchievement } = useAchievementStore();
   const { createMarketNews, addStockPriceHistory } = useMarketStore();
@@ -148,17 +148,18 @@ function Classes() {
       console.log('[DEBUG] Creating students:', demoData.students.map((s: any) => ({ name: s.name, jobId: s.jobId })));
       setStudents(demoData.students);
 
-      // 5. 주식 생성
-      demoData.stocks.forEach((stock: any) => {
-        createStock(stock);
-      });
+      // 5. 주식 일괄 생성 (ID 보존)
+      console.log('[DEBUG] Creating stocks:', demoData.stocks.map((s: any) => ({ id: s.id, symbol: s.symbol })));
+      bulkCreateStocks(demoData.stocks);
 
       // 6. 주식 거래 내역 생성
+      console.log('[DEBUG] Creating stock transactions:', demoData.stockTransactions.length);
       demoData.stockTransactions.forEach((transaction: any) => {
         addStockTransaction(transaction);
       });
 
       // 7. 주식 포트폴리오 생성
+      console.log('[DEBUG] Creating stock portfolios:', demoData.stockPortfolios.length);
       demoData.stockPortfolios.forEach((portfolio: any) => {
         createStockPortfolio(portfolio);
       });

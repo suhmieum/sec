@@ -55,28 +55,31 @@ export default function PortfolioDetailed() {
   if (!isPremiumActive) {
     return (
       <>
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200/50 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <button
-                onClick={() => navigate('/portfolio')}
-                className="px-4 py-2 text-sky-600 hover:text-sky-700 font-medium flex items-center space-x-2"
-              >
-                <span>←</span>
-                <span>포트폴리오 목록</span>
-              </button>
-            </div>
+        <div className="max-w-7xl mx-auto space-y-6">
+          <button
+            onClick={() => navigate('/portfolio')}
+            className="inline-flex items-center px-6 py-3 text-slate-600 hover:text-slate-700 hover:bg-white/50 rounded-2xl font-medium transition-all duration-200"
+          >
+            <span className="mr-2">←</span>
+            <span>포트폴리오 목록</span>
+          </button>
 
-            <div className="text-center">
-              <div className="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">📊</span>
+          <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-100/50 shadow-lg p-12">
+            <div className="text-center max-w-md mx-auto">
+              <div className="w-24 h-24 bg-gradient-to-br from-sky-100 to-sky-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <span className="text-5xl">📊</span>
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">학생 상세 포트폴리오</h2>
-              <p className="text-gray-600 mb-6">개별 학생의 경제 활동을 심층 분석한 포트폴리오를 확인하세요</p>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-3">학생 상세 포트폴리오</h2>
+              <p className="text-gray-600 mb-8 leading-relaxed">개별 학생의 경제 활동을 심층 분석한 포트폴리오를 확인하세요</p>
               <button
                 onClick={() => setShowPremiumModal(true)}
-                className="px-6 py-3 bg-sky-500 hover:bg-sky-600 text-white rounded-lg font-medium transition-colors"
+                className="inline-flex items-center px-8 py-4 border-0 text-base font-semibold rounded-2xl shadow-lg text-white bg-slate-500 hover:bg-slate-600 transition-all duration-300 hover:scale-105 hover:shadow-xl"
               >
+                <div className="w-5 h-5 mr-3">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
                 포트폴리오 보기
               </button>
             </div>
@@ -207,15 +210,25 @@ export default function PortfolioDetailed() {
 
   if (!student || !classroom) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">학생을 찾을 수 없습니다</h2>
-          <p className="text-gray-500 mb-4">잘못된 학생 ID이거나 학생 데이터가 없습니다.</p>
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-100/50 shadow-lg p-12 text-center">
+        <div className="max-w-md mx-auto">
+          <div className="w-24 h-24 bg-gradient-to-br from-red-100 to-red-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+            <svg className="w-12 h-12 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h3 className="text-2xl font-semibold text-gray-900 mb-3">학생을 찾을 수 없습니다</h3>
+          <p className="text-gray-600 mb-8 leading-relaxed">잘못된 학생 ID이거나 학생 데이터가 없습니다.</p>
           <button
             onClick={() => navigate('/portfolio')}
-            className="bg-sky-600 text-white px-4 py-2 rounded-lg hover:bg-sky-700"
+            className="inline-flex items-center px-8 py-4 border-0 text-base font-semibold rounded-2xl shadow-lg text-white bg-slate-500 hover:bg-slate-600 transition-all duration-300 hover:scale-105 hover:shadow-xl"
           >
-            포트폴리오 목록으로 돌아가기
+            <div className="w-5 h-5 mr-3">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </div>
+            포트폴리오 목록으로
           </button>
         </div>
       </div>
@@ -225,62 +238,66 @@ export default function PortfolioDetailed() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-sky-50 rounded-xl p-6 border border-sky-200">
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-100/50 shadow-lg p-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-16 h-16 bg-sky-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
+            <div className="w-20 h-20 bg-gradient-to-br from-slate-400 to-slate-600 rounded-3xl flex items-center justify-center text-white font-bold text-2xl shadow-lg">
               {student.name.charAt(0)}
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{student.name}의 경제 활동 포트폴리오</h1>
-              <p className="text-sky-600 mt-1">
+              <h1 className="text-3xl font-bold text-gray-900">{student.name}의 경제 활동 포트폴리오</h1>
+              <p className="text-gray-600 mt-2">
                 {classroom.name} · 신용등급 {student.creditGrade} · {student.creditScore}점
               </p>
             </div>
           </div>
           <button
             onClick={() => navigate('/portfolio')}
-            className="bg-white text-sky-600 px-4 py-2 rounded-lg hover:bg-sky-50 transition border border-sky-200"
+            className="inline-flex items-center px-6 py-3 text-slate-600 hover:text-white bg-white hover:bg-slate-500 rounded-2xl font-medium transition-all duration-300 border border-slate-200 hover:border-slate-500 shadow-md hover:shadow-lg"
           >
-            ← 목록으로
+            <span className="mr-2">←</span>
+            <span>목록으로</span>
           </button>
         </div>
       </div>
 
       {/* AI 코멘트 생성 카드 */}
-      <div className="bg-gradient-to-r from-sky-100 to-blue-100 rounded-xl p-6 border border-sky-200 shadow-sm">
-        <div className="flex items-center justify-between">
+      <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-3xl border border-slate-200/50 shadow-lg p-8">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-sky-500 rounded-full flex items-center justify-center">
-              <span className="text-2xl">🤖</span>
+            <div className="w-16 h-16 bg-gradient-to-br from-slate-400 to-slate-600 rounded-2xl flex items-center justify-center shadow-md">
+              <span className="text-3xl">🤖</span>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">AI 경제교육 전문가</h3>
-              <p className="text-gray-600 text-sm">자산 포트폴리오, 거래 패턴, 학습 태도를 종합 분석하여 500-700자 분량의 전문적인 교육 컨설팅을 제공합니다</p>
+              <h3 className="text-xl font-bold text-gray-900">AI 경제교육 전문가</h3>
+              <p className="text-gray-600 text-sm mt-1 leading-relaxed">자산 포트폴리오, 거래 패턴, 학습 태도를 종합 분석하여 500-700자 분량의 전문적인 교육 컨설팅을 제공합니다</p>
             </div>
           </div>
           <button
             onClick={generateAIComment}
             disabled={isGeneratingAI}
-            className="bg-sky-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-md"
+            className="inline-flex items-center px-8 py-4 border-0 text-base font-semibold rounded-2xl shadow-lg text-white bg-slate-500 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 hover:shadow-xl"
           >
             {isGeneratingAI ? (
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 <span>생성 중...</span>
               </div>
             ) : (
-              '✨ AI 코멘트 생성'
+              <>
+                <span className="mr-2">✨</span>
+                <span>AI 코멘트 생성</span>
+              </>
             )}
           </button>
         </div>
 
         {/* 최근 AI 코멘트 미리보기 */}
         {comments.filter(c => c.isAI).length > 0 && (
-          <div className="mt-4 p-4 bg-white bg-opacity-60 rounded-lg border border-sky-300">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm text-gray-700 font-medium">최근 AI 코멘트</span>
-              <span className="text-xs text-gray-500">
+          <div className="mt-6 p-6 bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm text-gray-700 font-semibold">최근 AI 코멘트</span>
+              <span className="text-xs text-gray-500 font-medium">
                 {new Date(comments.filter(c => c.isAI)[0]?.createdAt).toLocaleDateString()}
               </span>
             </div>
@@ -289,67 +306,67 @@ export default function PortfolioDetailed() {
             </p>
             <button
               onClick={() => setActiveTab('comments')}
-              className="text-sky-600 hover:text-sky-700 text-xs mt-2 underline font-medium"
+              className="text-slate-600 hover:text-slate-700 text-sm mt-3 underline font-semibold transition-colors"
             >
-              전체 코멘트 보기
+              전체 코멘트 보기 →
             </button>
           </div>
         )}
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-sky-100">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-100/50 shadow-lg p-6 hover:shadow-xl transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">총 자산</p>
-              <p className="text-xl font-bold text-gray-900">
+              <p className="text-sm text-gray-500 font-medium mb-1">총 자산</p>
+              <p className="text-2xl font-bold text-gray-900">
                 {totalAssets.toLocaleString()}원
               </p>
             </div>
-            <div className="h-10 w-10 bg-sky-100 rounded-full flex items-center justify-center">
+            <div className="h-14 w-14 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center shadow-md text-2xl">
               💰
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-sky-100">
+        <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-100/50 shadow-lg p-6 hover:shadow-xl transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">신용점수</p>
-              <p className="text-xl font-bold text-gray-900">
+              <p className="text-sm text-gray-500 font-medium mb-1">신용점수</p>
+              <p className="text-2xl font-bold text-gray-900">
                 {student.creditScore}점
               </p>
             </div>
-            <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
+            <div className="h-14 w-14 bg-gradient-to-br from-green-100 to-green-200 rounded-2xl flex items-center justify-center shadow-md text-2xl">
               📊
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-sky-100">
+        <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-100/50 shadow-lg p-6 hover:shadow-xl transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">저축률</p>
-              <p className="text-xl font-bold text-gray-900">
+              <p className="text-sm text-gray-500 font-medium mb-1">저축률</p>
+              <p className="text-2xl font-bold text-gray-900">
                 {savingsRate.toFixed(1)}%
               </p>
             </div>
-            <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center">
+            <div className="h-14 w-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center shadow-md text-2xl">
               📈
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-sky-100">
+        <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-100/50 shadow-lg p-6 hover:shadow-xl transition-all duration-300">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">달성 업적</p>
-              <p className="text-xl font-bold text-gray-900">
+              <p className="text-sm text-gray-500 font-medium mb-1">달성 업적</p>
+              <p className="text-2xl font-bold text-gray-900">
                 {student.achievements?.length || 0}개
               </p>
             </div>
-            <div className="h-10 w-10 bg-yellow-100 rounded-full flex items-center justify-center">
+            <div className="h-14 w-14 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-2xl flex items-center justify-center shadow-md text-2xl">
               🏆
             </div>
           </div>
@@ -357,9 +374,9 @@ export default function PortfolioDetailed() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-xl shadow-sm border border-sky-100">
-        <div className="border-b border-sky-100">
-          <nav className="flex space-x-8 px-6" aria-label="Tabs">
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-100/50 shadow-lg">
+        <div className="border-b border-gray-200">
+          <nav className="flex space-x-8 px-8" aria-label="Tabs">
             {[
               { id: 'overview', name: '개요', icon: '📋' },
               { id: 'assets', name: '자산 구성', icon: '💼' },
@@ -370,25 +387,26 @@ export default function PortfolioDetailed() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`
-                  py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2
+                  py-4 px-2 border-b-2 font-semibold text-sm flex items-center gap-2 transition-all duration-200
                   ${activeTab === tab.id
-                    ? 'border-sky-500 text-sky-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-slate-500 text-slate-700'
+                    : 'border-transparent text-gray-500 hover:text-slate-600 hover:border-slate-300'
                   }
                 `}
               >
-                {tab.icon} {tab.name}
+                <span className="text-base">{tab.icon}</span>
+                <span>{tab.name}</span>
               </button>
             ))}
           </nav>
         </div>
 
-        <div className="p-6">
+        <div className="p-8">
           {/* Overview Tab */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-sky-50 rounded-lg p-4 border border-sky-200">
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6 border border-slate-200/50 shadow-sm">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">기본 정보</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between">
@@ -410,7 +428,7 @@ export default function PortfolioDetailed() {
                   </div>
                 </div>
 
-                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 border border-green-200/50 shadow-sm">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">신용 관리</h3>
                   <div className="space-y-2">
                     <div className="flex justify-between">
@@ -440,7 +458,7 @@ export default function PortfolioDetailed() {
                 </div>
               </div>
 
-              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200/50 shadow-sm">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">경제 성과 요약</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center">
@@ -476,7 +494,7 @@ export default function PortfolioDetailed() {
           {activeTab === 'assets' && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-sky-50 rounded-lg p-4 border border-sky-200 text-center">
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6 border border-slate-200/50 shadow-sm text-center">
                   <div className="text-3xl mb-2">💰</div>
                   <h3 className="font-semibold text-gray-900">현금</h3>
                   <p className="text-2xl font-bold text-sky-600 mt-2">
@@ -487,7 +505,7 @@ export default function PortfolioDetailed() {
                   </p>
                 </div>
 
-                <div className="bg-purple-50 rounded-lg p-4 border border-purple-200 text-center">
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 border border-purple-200/50 shadow-sm text-center">
                   <div className="text-3xl mb-2">📈</div>
                   <h3 className="font-semibold text-gray-900">주식 투자</h3>
                   <p className="text-2xl font-bold text-purple-600 mt-2">
@@ -498,7 +516,7 @@ export default function PortfolioDetailed() {
                   </p>
                 </div>
 
-                <div className="bg-green-50 rounded-lg p-4 border border-green-200 text-center">
+                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 border border-green-200/50 shadow-sm text-center">
                   <div className="text-3xl mb-2">🏦</div>
                   <h3 className="font-semibold text-gray-900">예금/적금</h3>
                   <p className="text-2xl font-bold text-green-600 mt-2">
@@ -512,7 +530,7 @@ export default function PortfolioDetailed() {
 
               {/* Portfolio Details */}
               {stockPortfolios.length > 0 && (
-                <div className="bg-white rounded-lg border border-gray-200">
+                <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-sm">
                   <h3 className="text-lg font-semibold text-gray-900 p-4 border-b">보유 주식</h3>
                   <div className="divide-y">
                     {stockPortfolios.map((portfolio, idx) => (
@@ -532,7 +550,7 @@ export default function PortfolioDetailed() {
               )}
 
               {savingsAccounts.length > 0 && (
-                <div className="bg-white rounded-lg border border-gray-200">
+                <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-sm">
                   <h3 className="text-lg font-semibold text-gray-900 p-4 border-b">예금/적금 계좌</h3>
                   <div className="divide-y">
                     {savingsAccounts.map((account, idx) => (
@@ -559,7 +577,7 @@ export default function PortfolioDetailed() {
           {activeTab === 'activities' && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-sky-50 rounded-lg p-4 border border-sky-200">
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl p-6 border border-slate-200/50 shadow-sm">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">거래 활동</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between">
@@ -583,7 +601,7 @@ export default function PortfolioDetailed() {
                   </div>
                 </div>
 
-                <div className="bg-green-50 rounded-lg p-4 border border-green-200">
+                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 border border-green-200/50 shadow-sm">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">금융 습관</h3>
                   <div className="space-y-3">
                     <div className="flex justify-between">
@@ -619,7 +637,7 @@ export default function PortfolioDetailed() {
 
               {/* Achievements */}
               {student.achievements && student.achievements.length > 0 && (
-                <div className="bg-white rounded-lg border border-gray-200 p-4">
+                <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200/50 shadow-sm p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">달성 업적</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {student.achievements.map((achievement, idx) => (
@@ -638,37 +656,38 @@ export default function PortfolioDetailed() {
           {activeTab === 'comments' && (
             <div className="space-y-6">
               {/* Add Comment Section */}
-              <div className="bg-sky-50 rounded-lg p-4 border border-sky-200">
+              <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-2xl p-6 border border-slate-200/50 shadow-sm">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">피드백 작성</h3>
                 <div className="space-y-3">
                   <textarea
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
                     placeholder="학생에 대한 피드백을 작성해주세요..."
-                    className="w-full px-3 py-2 border border-sky-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent shadow-sm transition-all duration-200"
                     rows={3}
                   />
                   <div className="flex justify-between items-center">
                     <button
                       onClick={generateAIComment}
                       disabled={isGeneratingAI}
-                      className="bg-sky-600 text-white px-6 py-2 rounded-lg hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium transition-colors"
+                      className="inline-flex items-center px-6 py-3 border-0 font-semibold rounded-2xl shadow-md text-white bg-slate-500 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105"
                     >
                       {isGeneratingAI ? (
                         <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                           AI 코멘트 생성 중...
                         </>
                       ) : (
                         <>
-                          🤖 AI 코멘트 생성
+                          <span className="mr-2">🤖</span>
+                          AI 코멘트 생성
                         </>
                       )}
                     </button>
                     <button
                       onClick={addTeacherComment}
                       disabled={!newComment.trim()}
-                      className="bg-sky-600 text-white px-4 py-2 rounded-lg hover:bg-sky-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="inline-flex items-center px-6 py-3 border-0 font-semibold rounded-2xl shadow-md text-white bg-slate-500 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105"
                     >
                       코멘트 추가
                     </button>
@@ -682,8 +701,8 @@ export default function PortfolioDetailed() {
                 {comments.length > 0 ? (
                   <div className="space-y-4">
                     {comments.map((comment) => (
-                      <div key={comment.id} className={`rounded-lg p-4 ${
-                        comment.isAI ? 'bg-sky-50 border border-sky-200' : 'bg-white border border-gray-200'
+                      <div key={comment.id} className={`rounded-2xl p-6 shadow-sm ${
+                        comment.isAI ? 'bg-gradient-to-br from-slate-50 to-blue-50 border border-slate-200/50' : 'bg-white/60 backdrop-blur-sm border border-gray-200/50'
                       }`}>
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex items-center gap-2">

@@ -14,7 +14,8 @@ interface StockState {
   loadStockTransactions: () => void;
   loadStockPortfolios: () => void;
 
-  createStock: (data: Omit<Stock, 'id' | 'createdAt' | 'updatedAt'>) => Stock;
+  createStock: (data: Omit<Stock, 'id' | 'createdAt' | 'updatedAt'> | Stock) => Stock;
+  bulkCreateStocks: (stocks: Stock[]) => void;
   updateStock: (id: string, updates: Partial<Stock>) => void;
   deleteStock: (id: string) => void;
 
@@ -69,16 +70,26 @@ export const useStockStore = create<StockState>((set, get) => ({
     const now = new Date().toISOString();
     const newStock: Stock = {
       ...data,
-      id: uuidv4(),
-      createdAt: now,
-      updatedAt: now,
+      id: data.id || uuidv4(), // 기존 id가 있으면 유지
+      createdAt: data.createdAt || now,
+      updatedAt: data.updatedAt || now,
     };
 
-    set((state) => ({
-      stocks: [...state.stocks, newStock]
-    }));
+    set((state) => {
+      const updated = [...state.stocks, newStock];
+      storageAdapter.set(STORAGE_KEYS.STOCKS, updated); // 즉시 저장
+      return { stocks: updated };
+    });
 
     return newStock;
+  },
+
+  bulkCreateStocks: (stocks) => {
+    set((state) => {
+      const updated = [...state.stocks, ...stocks];
+      storageAdapter.set(STORAGE_KEYS.STOCKS, updated);
+      return { stocks: updated };
+    });
   },
 
   updateStock: (id, updates) => {
